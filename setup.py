@@ -16,7 +16,7 @@ setup(
     author='Brian Beffa',
     author_email='brbsix@gmail.com',
     # long_description=read('README.rst'),
-    # url='https://github.com/brbsix/updatewatch',
+    url='https://github.com/brbsix/updatewatch',
     license='GPLv3',
     keywords=['monitor', 'notify', 'updates'],
     packages=find_packages(),
