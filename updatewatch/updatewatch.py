@@ -65,7 +65,8 @@ class Result:  # pylint: disable=too-few-public-methods
                 self.header = lines[0]
                 all_module_lines = lines[1:]
                 for module_line in all_module_lines:
-                    _, current, wanted, _ = Terminal.clean(module_line).split()
+                    clean_line = reporters.Terminal.clean(module_line)
+                    _, current, wanted, _ = clean_line.split()
                     # check whether the package is actually outdated
                     if StrictVersion(current) < StrictVersion(wanted):
                         modules.append(module_line)
