@@ -289,13 +289,14 @@ def get_updates(path):
 def main(args=None):
     """Start application."""
 
+    # parse command-line arguments into options
     options = parse_args(args)
 
+    # if no application directory has been set, configure a default
+    # and create the directory if none exists
     if options.directory is None:
         options.directory = appdirs.user_config_dir(__program__)
-        # create directory if it does not exist
         os.makedirs(options.directory, exist_ok=True)
-        # TODO: populate it with a sample updates.yaml file
 
     config = Config(options.directory)
 
