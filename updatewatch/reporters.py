@@ -82,20 +82,19 @@ def show_all(results):
 
     count = 0
     for result in results:
-        if not result:
-            continue
-
-        Terminal.title('Checking %s...' % result.description)
-        if result.stderr:
-            Terminal.error(result.stderr)
-        if result.stdout:
-            if result.header:
-                Terminal.header(result.header)
-            for line in result.stdout.splitlines():
-                Terminal.info(line)
-                count += 1
-
-        print()  # put empty line between different types of updates
+        if result['stderr'] or result['stdout']:
+            Terminal.title('Checking %s...' % result['description'])
+            # print any errors first
+            if result['stderr']:
+                Terminal.error('\n'.join(result['stderr']))
+            if result['stdout']:
+                if result['header']:
+                    Terminal.header(result['header'])
+                for line in result['stdout']:
+                    Terminal.info(line)
+                    count += 1
+            # print an empty line between different types of updates
+            print()
 
     # only show notification if there are updates and the script is
     # being run interactively (e.g. from a TTY)
@@ -109,16 +108,16 @@ def show_all(results):
 def show_new(results):
     """Display results (if there is anything new)."""
 
-    new = any(r.new for r in results)
+    new = any(r['new'] for r in results)
 
     if new:
         for result in results:
-            if result.stdout:
-                Terminal.title(' Checking %s...' % result.description)
-                if result.header:
-                    Terminal.header(' %s' % result.header)
-                for line in result.stdout.splitlines():
-                    if line in result.new:
+            if result['stdout']:
+                Terminal.title(' Checking %s...' % result['description'])
+                if result['header']:
+                    Terminal.header(' %s' % result['header'])
+                for line in result['stdout']:
+                    if line in result['new']:
                         Terminal.info('+%s' % line)
                     else:
                         Terminal.info(' %s' % line)

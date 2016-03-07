@@ -34,50 +34,6 @@ class Config:  # pylint: disable=too-few-public-methods
         self.updates = os.path.join(directory, 'updates.yaml')
 
 
-class Result:  # pylint: disable=too-few-public-methods
-    """Store result of update check."""
-
-    def __init__(self, description, stdout, stderr, status):
-        self.description = description
-        self.stdout = stdout.strip()
-        self.stderr = stderr.strip()
-        self.status = status
-
-        self.header = None
-        self.new = set()
-
-        if status == 124:
-            self.stderr = 'ERROR: command timed out' + \
-                ('\n' + self.stderr if self.stderr else '')
-
-        # handle Node.js differently due to it's column headers,
-        # colored output, and propensity for displaying modules
-        # that are not actually outdated
-        if self.description == 'Node.js modules' and self.stdout:
-            modules = []
-
-            lines = self.stdout.splitlines()
-            if len(lines) >= 2:
-                self.header = lines[0]
-                all_module_lines = lines[1:]
-                for module_line in all_module_lines:
-                    clean_line = reporters.Terminal.clean(module_line)
-                    _, current, wanted, _ = clean_line.split()
-                    # check whether the package is actually outdated
-                    if StrictVersion(current) < StrictVersion(wanted):
-                        modules.append(module_line)
-
-            self.stdout = '\n'.join(modules) if modules else ''
-
-    def __bool__(self):
-        return bool(self.stdout or self.stderr)
-
-    @property
-    def updates(self):
-        """Return a set of updates."""
-        return set(self.stdout.splitlines())
-
-
 def _scriptlogger(logfile=None, loglevel=logging.WARNING):
     """Configure program logger."""
 
@@ -120,32 +76,33 @@ def difference(new, old):
     """Compare new update information with old information."""
     data = []
     for current, previous in itertools.zip_longest(new, old):
-        LOG.debug('processing current: %s', current.description)
-        LOG.debug('processing previous: %s', previous.description
+        LOG.debug('processing current: %s', current['description'])
+        LOG.debug('processing previous: %s', previous['description']
                   if previous is not None else previous)
 
-        try:
-            # find the difference between two sets
-            new = current.updates - previous.updates
-        except AttributeError:
-            new = current.updates
+        # find the difference between two sets
+        if previous is None:
+            new = set(current['stdout'])
+        else:
+            new = set(current['stdout']) - \
+                set(previous['stdout'])
 
         LOG.debug('new is %s', new)
 
         # update the record only if there are new updates or an update poll
         # has been performed without error
-        if new or not current.stderr:
+        if new or not current['stderr']:
             if new:
                 LOG.debug('current record has new updates (%s)', new)
-            elif not current.stderr:
+            elif not current['stderr']:
                 LOG.debug('current record has no errors')
             LOG.debug('updating record')
-            current.new = new
+            current['new'] = new
             data.append(current)
         else:
             LOG.debug('skipping record')
             # be sure to wipe the old set before adding it to the data
-            previous.new = set()
+            previous['new'] = set()
             data.append(previous)
 
     return data
@@ -165,7 +122,7 @@ def execute(description, command):
 
         stdout, stderr = process.communicate()
         status = process.wait()
-        yield Result(description, stdout, stderr, status)
+        yield make_result(description, stdout, stderr, status)
 
 
 def get_data(results, config):
@@ -277,6 +234,52 @@ def main(args=None):
         LOG.debug('running mailer.email_new')
         mailer.email_new(data, config.application)
         sys.exit(0)
+
+
+def make_result(description, stdout, stderr, status):
+    """Return result of update check."""
+
+    header = None
+    stderr = stderr.strip().splitlines()
+    stdout = stdout.strip().splitlines()
+
+    if status == 124:
+        LOG.debug('command timed out')
+        stderr.append('ERROR: command timed out')
+
+    # handle Node.js differently due to it's column headers,
+    # colored output, and propensity for displaying modules
+    # that are not actually outdated
+    if description == 'Node.js modules' and stdout:
+        LOG.debug('preparing Node.js modules')
+        modules = []
+
+        if len(stdout) >= 2:
+            header = stdout[0]
+            LOG.debug('Node.js header: %s' % header)
+            all_module_lines = stdout[1:]
+            LOG.debug('Node.js all_module_lines: %s' % all_module_lines)
+            for module_line in all_module_lines:
+                LOG.debug('Node.js module_line: %s' % module_line)
+                clean_line = reporters.Terminal.clean(module_line)
+                _, current, wanted, _ = clean_line.split()
+                LOG.debug('Node.js current: %s' % current)
+                LOG.debug('Node.js wanted: %s' % wanted)
+                # check whether the package is actually outdated
+                if StrictVersion(current) < StrictVersion(wanted):
+                    LOG.debug("Node.js package '%s' is wanted" % module_line)
+                    modules.append(module_line)
+
+        stdout = modules
+
+    return {
+        'description': description,
+        'header': header,
+        'new': set(),
+        'status': status,
+        'stderr': stderr,
+        'stdout': stdout
+        }
 
 
 def parse_args(args):

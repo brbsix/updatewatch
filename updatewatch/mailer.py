@@ -43,7 +43,7 @@ def email_new(results, path):
             except KeyError:
                 return
             if enabled:
-                new = any(r.new for r in results)
+                new = any(r['new'] for r in results)
                 if new:
                     subject = config.get('subject')
                     html = make_html(results, subject)
@@ -66,13 +66,13 @@ def make_html(results, subject=None):
             '''.format(
                 subject=subject if subject is not None else __program__))
         for result in results:
-            if result.stdout:
+            if result['stdout']:
                 yield '<p>'
-                yield '&nbsp;<b>%s</b><br>' % result.description
-                for line in result.stdout.splitlines():
+                yield '&nbsp;<b>%s</b><br>' % result['description']
+                for line in result['stdout']:
                     # ignore headers and just print the first field
                     newln = line.split(' ')[0]
-                    if line in result.new:
+                    if line in result['new']:
                         yield '+%s<br>' % reporters.Terminal.clean(newln)
                     else:
                         yield '&nbsp;%s<br>' % reporters.Terminal.clean(newln)
