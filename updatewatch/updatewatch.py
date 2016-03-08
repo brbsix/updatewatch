@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
 """Poll for new updates"""
 
 # standard imports
@@ -279,7 +278,7 @@ def make_result(description, stdout, stderr, status):
         'status': status,
         'stderr': stderr,
         'stdout': stdout
-        }
+    }
 
 
 def parse_args(args):
