@@ -16,7 +16,6 @@ class Terminal:
     LIGHTRED = '\x1b[91m'
     RESET_ALL = '\x1b[0m'
     isatty = sys.stdout.isatty()
-    TERM = []
 
     @staticmethod
     def clean(msg):
