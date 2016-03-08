@@ -10,18 +10,17 @@ from textwrap import dedent
 
 # external imports
 import keyring
-import yaml
 
 # application imports
 from . import __program__, reporters
 
 
-def email(message, config):
+def email(message, email_config):
     """Send an email message."""
-    email_from = config['from']
-    email_to = config['to']
-    smtp_server = config['smtp']['host']
-    port = config['smtp']['port']
+    email_from = email_config['from']
+    email_to = email_config['to']
+    smtp_server = email_config['smtp']['host']
+    port = email_config['smtp']['port']
     password = keyring.get_password(smtp_server, email_from)
 
     mailer = smtplib.SMTP(smtp_server, port)
@@ -31,24 +30,15 @@ def email(message, config):
     mailer.sendmail(email_from, email_to, message)
 
 
-def email_new(results, path):
+def email_new(results, email_config):
     """Email the results (if it is enabled and there is anything new)."""
 
-    try:
-        with open(path) as file:
-            try:
-                config = yaml.load(file)['email']
-                enabled = config['enabled']
-            except KeyError:
-                return
-            if enabled:
-                new = any(r['new'] for r in results)
-                if new:
-                    subject = config.get('subject')
-                    html = make_html(results, subject)
-                    email(html, config)
-    except FileNotFoundError:
-        return
+    if email_config.get('enabled'):
+        new = any(r.get('new') for r in results)
+        if new:
+            subject = email_config.get('subject')
+            html = make_html(results, subject)
+            email(html, email_config)
 
 
 def make_html(results, subject=None):
@@ -92,16 +82,14 @@ def make_html(results, subject=None):
     return '\n'.join(iter_html()).encode()
 
 
-def set_password(path):
+def set_password(email_config):
     """
     Interactively set a keyring password for the
     configured email account.
     """
 
-    with open(path) as file:
-        config = yaml.load(file)['email']
-        email_from = config['from']
-        smtp_server = config['smtp']['host']
+    email_from = email_config['from']
+    smtp_server = email_config['smtp']['host']
 
     try:
         password = getpass.getpass(

@@ -75,7 +75,7 @@ class Terminal:
             print(Terminal.BRIGHT + msg + Terminal.RESET_ALL)
 
 
-def show_all(results):
+def show_all(results, notify):
     """Display results via terminal and `notify-send`."""
 
     count = 0
@@ -94,9 +94,8 @@ def show_all(results):
             # print an empty line between different types of updates
             print()
 
-    # only show notification if there are updates and the script is
-    # being run interactively (e.g. from a TTY)
-    if count > 0 and Terminal.isatty:
+    # show notification if it is enabled and there are updates
+    if notify and count > 0:
         subprocess.call([
             'notify-send', '-i', 'aptdaemon-update-cache', '-u', 'critical',
             'Update Notifier', '%d update%s available!' %

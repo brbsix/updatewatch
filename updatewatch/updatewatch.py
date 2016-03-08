@@ -75,16 +75,14 @@ def difference(new, old):
     """Compare new update information with old information."""
     data = []
     for current, previous in itertools.zip_longest(new, old):
+        if previous is None:
+            previous = make_default()
+
         LOG.debug('processing current: %s', current['description'])
-        LOG.debug('processing previous: %s', previous['description']
-                  if previous is not None else previous)
+        LOG.debug('processing previous: %s', previous['description'])
 
         # find the difference between two sets
-        if previous is None:
-            new = set(current['stdout'])
-        else:
-            new = set(current['stdout']) - \
-                set(previous['stdout'])
+        new = set(current['stdout']) - set(previous['stdout'])
 
         LOG.debug('new is %s', new)
 
@@ -100,6 +98,7 @@ def difference(new, old):
             data.append(current)
         else:
             LOG.debug('skipping record')
+            previous['description'] = current['description']
             # be sure to wipe the old set before adding it to the data
             previous['new'] = set()
             data.append(previous)
@@ -107,8 +106,66 @@ def difference(new, old):
     return data
 
 
+# def difference(new, old):
+#     """Compare new update information with old information."""
+#     data = []
+#     for current, previous in itertools.zip_longest(new, old):
+#         LOG.debug('processing current: %s', current['description'])
+#         LOG.debug('processing previous: %s', previous['description']
+#                   if previous is not None else previous)
+
+#         # find the difference between two sets
+#         new = set(current['stdout']) - \
+#             set([] if previous is None else previous['stdout'])
+
+#         LOG.debug('new is %s', new)
+
+#         # update the record only if there are new updates or an update poll
+#         # has been performed without error
+#         if new or not current['stderr']:
+#             if new:
+#                 LOG.debug('current record has new updates (%s)', new)
+#             elif not current['stderr']:
+#                 LOG.debug('current record has no errors')
+#             LOG.debug('updating record')
+#             current['new'] = new
+#             data.append(current)
+#         else:
+#             LOG.debug('skipping record')
+#             # be sure to wipe the old set before adding it to the data
+#             try:
+#                 previous['new'] = set()
+#             except TypeError:
+#                 pass
+#             data.append(previous)
+
+#     return data
+
+
 def execute(description, command):
-    """Check for updates."""
+    """
+    Check for updates.
+
+    >>> result = execute('sample update', 'echo output; echo error >&2')
+    >>> next(result)
+    >>> next(result) == {'description': 'sample update', \
+                         'header': None, \
+                         'new': set(), \
+                         'status': 0, \
+                         'stderr': ['error'], \
+                         'stdout': ['output'] }
+    True
+
+    >>> result = execute('sample update', 'echo something; exit 3')
+    >>> next(result)
+    >>> next(result) == {'description': 'sample update', \
+                         'header': None, \
+                         'new': set(), \
+                         'status': 3, \
+                         'stderr': [], \
+                         'stdout': ['something'] }
+    True
+    """
 
     with subprocess.Popen('timeout 3m %s' % command,
                           executable='bash',
@@ -124,12 +181,12 @@ def execute(description, command):
         yield make_result(description, stdout, stderr, status)
 
 
-def get_data(results, config):
+def get_data(results, config, updates):
     """Get latest data, compare it to previous data, then shelve the result."""
     with shelve.open(config.database) as database:
 
         # get hash of updates file to check whether it has changed
-        key = get_hash(config.updates)
+        key = get_hash(updates)
         LOG.debug('current key is %s', key)
 
         # print keys of all pre-existing entries stored in DB
@@ -149,31 +206,13 @@ def get_data(results, config):
 
 
 def get_hash(item):
-    """Return the sha1 hash of an object."""
-    def hashablize(obj):
-        """
-        Convert a container hierarchy into one that can be hashed.
+    """
+    Return the sha1 hash of an object.
 
-        Don't use this with recursive structures!
-        Also, this won't be useful if you pass dictionaries with
-        keys that don't have a total order.
-        Actually, maybe you're best off not using this function at all.
+    >>> get_hash([1, 2, 3])
+    '28e379c2b3c22a61bdf6f4f52036ccb3c4d2e968'
+    """
 
-        http://stackoverflow.com/a/985369/4117209
-        """
-        try:
-            hash(obj)
-        except TypeError:
-            if isinstance(obj, dict):
-                return tuple(
-                    (k, hashablize(v)) for (k, v) in sorted(obj.items()))
-            elif hasattr(obj, '__iter__'):
-                return tuple(hashablize(o) for o in obj)
-            else:
-                raise TypeError(
-                    "Can't hashablize object of type %r" % type(obj))
-        else:
-            return obj
     return hashlib.sha1(pickle.dumps(hashablize(item))).hexdigest()
 
 
@@ -181,6 +220,41 @@ def get_updates(path):
     """Return list of updates from configuration file."""
     with open(path) as file:
         return list(yaml.load_all(file))
+
+
+def hashablize(obj):
+    """
+    Convert a container hierarchy into one that can be hashed.
+
+    Don't use this with recursive structures!
+    Also, this won't be useful if you pass dictionaries with
+    keys that don't have a total order.
+    Actually, maybe you're best off not using this function at all.
+
+    http://stackoverflow.com/a/985369/4117209
+
+    >>> hashablize([1, 2, 3])
+    (1, 2, 3)
+
+    >>> hashablize({'key': 'value', 'otherkey': 'othervalue'})
+    (('key', 'value'), ('otherkey', 'othervalue'))
+
+    >>> hashablize([{'keyA': 'valueA'}, {'keyB': 'valueB'}])
+    ((('keyA', 'valueA'),), (('keyB', 'valueB'),))
+    """
+    try:
+        hash(obj)
+    except TypeError:
+        if isinstance(obj, dict):
+            return tuple(
+                (k, hashablize(v)) for (k, v) in sorted(obj.items()))
+        elif hasattr(obj, '__iter__'):
+            return tuple(hashablize(o) for o in obj)
+        else:
+            raise TypeError(
+                "Can't hashablize object of type %r" % type(obj))
+    else:
+        return obj
 
 
 def main(args=None):
@@ -195,44 +269,121 @@ def main(args=None):
         options.directory = appdirs.user_config_dir(__program__)
         os.makedirs(options.directory, exist_ok=True)
 
-    config = Config(options.directory)
+    config_paths = Config(options.directory)
 
     # configure logging
-    logfile = config.logfile if options.logfile is None else None if \
+    logfile = config_paths.logfile if options.logfile is None else None if \
         options.logfile is False else options.logfile
     loglevel = logging.DEBUG if options.debug else logging.WARNING
     _scriptlogger(logfile, loglevel)
 
     LOG.debug('options: %s', options)
-    LOG.debug('config: %s', config)
+    LOG.debug('config: %s', config_paths)
 
     # populate the application's configuration file with a default
     # if none exists
-    populate(config.application)
+    config_file = populate(config_paths.application)
 
     if options.set_password:
         LOG.debug('running mailer.set_password')
-        mailer.set_password(config.application)
+        mailer.set_password(config_file.get('email'))
         sys.exit(0)
 
-    updates = get_updates(config.updates)
+    updates = get_updates(config_paths.updates)
     LOG.debug('updates: %s', updates)
 
     results = check(updates)
 
     if options.list:
-        LOG.debug('running reporters.show_all')
-        reporters.show_all(results)
+        try:
+            notify = config_file['notify']['enabled']
+        except KeyError:
+            notify = False
+        LOG.debug('running reporters.show_all %s notify',
+                  'with' if notify else 'without')
+        reporters.show_all(results, notify)
         sys.exit(0)
     else:
-        data = get_data(results, config)
+        data = get_data(results, config_paths, updates)
 
         LOG.debug('running reporters.show_new')
         reporters.show_new(data)
 
         LOG.debug('running mailer.email_new')
-        mailer.email_new(data, config.application)
+        mailer.email_new(data, config_file.get('email'))
         sys.exit(0)
+
+
+def make_default():
+    """Return default result."""
+
+    return {
+        'description': '',
+        'header': None,
+        'new': set(),
+        'status': 0,
+        'stderr': [],
+        'stdout': []
+    }
+
+
+# def make_default(description=None,
+#                  header=None,
+#                  new=None,
+#                  status=None,
+#                  stderr=None,
+#                  stdout=None):
+#     """Create and return default result."""
+
+#     return {
+#         'description': '' if description is None else description,
+#         'header': None if header is None else header,
+#         'new': set() if new is None else new,
+#         'status': 0 if status is None else status,
+#         'stderr': [] if stderr is None else stderr,
+#         'stdout': [] if stdout is None else stdout
+#     }
+
+
+# def make_result(description, stdout, stderr, status):
+#     """Return result of update check."""
+
+#     result = make_default()
+#     result['description'] = description
+#     result['stderr'] = stderr.strip().splitlines()
+#     result['stdout'] = stdout.strip().splitlines()
+#     result['status'] = status
+
+#     if result['status'] == 124:
+#         LOG.debug('command timed out')
+#         result['stderr'].append('ERROR: command timed out')
+
+#     # handle Node.js differently due to it's column headers,
+#     # colored output, and propensity for displaying modules
+#     # that are not actually outdated
+#     if result['description'] == 'Node.js modules' and result['stdout']:
+#         LOG.debug('preparing Node.js modules')
+#         modules = []
+
+#         if len(result['stdout']) >= 2:
+#             result['header'] = result['stdout'][0]
+#             LOG.debug('Node.js header: %s', result['header'])
+#             all_module_lines = result['stdout'][1:]
+#             LOG.debug('Node.js all_module_lines: %s', all_module_lines)
+#             for module_line in all_module_lines:
+#                 LOG.debug('Node.js module_line: %s', module_line)
+#                 clean_line = reporters.Terminal.clean(module_line)
+#                 _, current, wanted, _ = clean_line.split()
+#                 LOG.debug('Node.js current: %s', current)
+#                 LOG.debug('Node.js wanted: %s', wanted)
+#                 # check whether the package is actually outdated
+#                 if StrictVersion(current) < StrictVersion(wanted):
+#                     LOG.debug("Node.js package '%s' is wanted", module_line)
+#                     modules.append(module_line)
+
+#         result['stdout'] = modules
+
+#     return result
 
 
 def make_result(description, stdout, stderr, status):
@@ -255,18 +406,18 @@ def make_result(description, stdout, stderr, status):
 
         if len(stdout) >= 2:
             header = stdout[0]
-            LOG.debug('Node.js header: %s' % header)
+            LOG.debug('Node.js header: %s', header)
             all_module_lines = stdout[1:]
-            LOG.debug('Node.js all_module_lines: %s' % all_module_lines)
+            LOG.debug('Node.js all_module_lines: %s', all_module_lines)
             for module_line in all_module_lines:
-                LOG.debug('Node.js module_line: %s' % module_line)
+                LOG.debug('Node.js module_line: %s', module_line)
                 clean_line = reporters.Terminal.clean(module_line)
                 _, current, wanted, _ = clean_line.split()
-                LOG.debug('Node.js current: %s' % current)
-                LOG.debug('Node.js wanted: %s' % wanted)
+                LOG.debug('Node.js current: %s', current)
+                LOG.debug('Node.js wanted: %s', wanted)
                 # check whether the package is actually outdated
                 if StrictVersion(current) < StrictVersion(wanted):
-                    LOG.debug("Node.js package '%s' is wanted" % module_line)
+                    LOG.debug("Node.js package '%s' is wanted", module_line)
                     modules.append(module_line)
 
         stdout = modules
@@ -338,30 +489,45 @@ def parse_args(args):
 
 
 def populate(path):
-    """Populate the application's default configuration file."""
-
-    data = {
-        'email': {
-            'enabled': False,
-            'from': 'username@gmail.com',
-            'to': 'username@gmail.com',
-            'subject': 'updatewatch',
-            'smtp': {
-                'host': 'smtp.gmail.com',
-                'port': 587
-                }
-            }
-        }
+    """
+    Return the application's configuration data, populating it
+    if necessary.
+    """
 
     try:
-        with open(path) as file:
-            yaml.load(file)
-        LOG.debug('found YAML document')
+        return yaml_load(path)
     except FileNotFoundError:
         LOG.debug('did not find YAML document')
-        with open(path, 'w') as file:
-            yaml.dump(data, file)
+        skeleton = {
+            'email': {
+                'enabled': False,
+                'from': 'username@gmail.com',
+                'to': 'username@gmail.com',
+                'subject': 'updatewatch',
+                'smtp': {
+                    'host': 'smtp.gmail.com',
+                    'port': 587
+                }
+            },
+            'notify': {
+                'enabled': False,
+            }
+        }
+        yaml_dump(skeleton, path)
         LOG.debug('created and populated default YAML document')
+        return skeleton
+
+
+def yaml_dump(data, path):
+    """Write YAML document to `path`."""
+    with open(path, 'w') as file:
+        yaml.dump(data, file)
+
+
+def yaml_load(path):
+    """Return YAML document from `path`."""
+    with open(path) as file:
+        return yaml.load(file)
 
 
 LOG = logging.getLogger(__program__)
