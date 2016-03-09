@@ -134,7 +134,7 @@ def populate(path):
     try:
         FileNotFoundError
     except NameError:
-        FileNotFoundError = OSError
+        FileNotFoundError = IOError
 
     try:
         return yaml_load(path)
