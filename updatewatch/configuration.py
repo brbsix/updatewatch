@@ -130,6 +130,12 @@ def populate(path):
     if necessary.
     """
 
+    # add support for Python 3.3 and below
+    try:
+        FileNotFoundError
+    except NameError:
+        FileNotFoundError = OSError
+
     try:
         return yaml_load(path)
     except FileNotFoundError:
