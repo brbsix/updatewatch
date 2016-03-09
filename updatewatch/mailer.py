@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """Email update results."""
 
@@ -27,7 +26,7 @@ def email(message, email_config):
     mailer.ehlo()
     mailer.starttls()
     mailer.login(email_from, password)
-    mailer.sendmail(email_from, email_to, message)
+    mailer.sendmail(email_from, email_to, message.encode())
 
 
 def email_new(results, email_config):
@@ -79,7 +78,7 @@ def make_html(results, subject=None):
             </span>
             </span>
             ''')
-    return '\n'.join(iter_html()).encode()
+    return '\n'.join(iter_html())
 
 
 def set_password(email_config):

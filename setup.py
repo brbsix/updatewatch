@@ -26,6 +26,8 @@ setup(
     entry_points={
         'console_scripts': ['updatewatch=updatewatch.updatewatch:main'],
     },
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
