@@ -164,15 +164,17 @@ class TestParseArgs:
             {0}: error: argument --set-password: not allowed with argument -l/--list
             """.format(PROGRAM))
 
-    def test_parse_args_version(self, capsys):
+    def test_parse_args_version(self, capfd):
+        wanted = '{} {}\n'.format(PROGRAM, __version__)
+
         with pytest.raises(SystemExit) as exception:
             configuration.parse_args(['--version'])
 
         assert exception.value.code is 0
 
-        stdout = capsys.readouterr()[0]
+        stdout, stderr = capfd.readouterr()
 
-        assert stdout == '{} {}\n'.format(PROGRAM, __version__)
+        assert stdout == wanted or stderr == wanted
 
 
 class TestPopulate:
