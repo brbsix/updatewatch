@@ -6,6 +6,7 @@ import argparse
 import os
 import logging
 import random
+import re
 import sys
 from textwrap import dedent
 
@@ -19,6 +20,7 @@ from updatewatch import configuration
 
 
 PROGRAM = os.path.basename(sys.argv[0])
+USAGE = 'usage: %s [-l|--list]' % PROGRAM
 
 
 class TestDirectory:
@@ -95,16 +97,18 @@ class TestParseArgs:
     def test_parse_args_dir_exists(self, tmpdir):
         directory = str(tmpdir)
 
-        assert configuration.parse_args(
-            ['--dir', directory]) == argparse.Namespace(
-                application=os.path.join(directory, __program__ + '.yaml'),
-                database=os.path.join(directory, __program__ + '.db'),
-                directory=directory,
-                list=False,
-                logfile=None,
-                loglevel=logging.WARNING,
-                set_password=False,
-                updates=os.path.join(directory, 'updates.yaml'))
+        namespace = argparse.Namespace(
+            application=os.path.join(directory, __program__ + '.yaml'),
+            database=os.path.join(directory, __program__ + '.db'),
+            directory=directory,
+            list=False,
+            logfile=None,
+            loglevel=logging.WARNING,
+            set_password=False,
+            updates=os.path.join(directory, 'updates.yaml'))
+
+        for arg in ('-d', '--dir'):
+            assert configuration.parse_args([arg, directory]) == namespace
 
     def test_parse_args_dir_does_not_exist(self, capfd, tmpdir):
         while True:
@@ -120,14 +124,14 @@ class TestParseArgs:
         stderr = capfd.readouterr()[1]
 
         assert stderr == dedent("""\
-            usage: {0} [-l|--list]
-            {0}: error: argument -d/--dir: invalid directory path: '{1}'
-            """.format(PROGRAM, badpath))
+            {0}
+            {1}: error: argument -d/--dir: invalid directory path: '{2}'
+            """.format(USAGE, PROGRAM, badpath))
 
     def test_parse_args_list(self):
         directory = appdirs.user_config_dir(__program__)
 
-        assert configuration.parse_args(['--list']) == argparse.Namespace(
+        namespace = argparse.Namespace(
             application=os.path.join(directory, __program__ + '.yaml'),
             database=os.path.join(directory, __program__ + '.db'),
             directory=directory,
@@ -136,6 +140,9 @@ class TestParseArgs:
             loglevel=logging.WARNING,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
+
+        for arg in ('-l', '--list'):
+            assert configuration.parse_args([arg]) == namespace
 
     def test_parse_args_set_password(self):
         directory = appdirs.user_config_dir(__program__)
@@ -152,20 +159,26 @@ class TestParseArgs:
                 updates=os.path.join(directory, 'updates.yaml'))
 
     def test_parse_args_conflict(self, capfd):
-        with pytest.raises(SystemExit) as exception:
-            configuration.parse_args(['--list', '--set-password'])
+        combos = ((a, '--set-password')[::o] for o in (1, -1) for a in ('-l', '--list'))
+        for args in combos:
 
-        assert exception.value.code is 2
+            with pytest.raises(SystemExit) as exception:
+                configuration.parse_args(args)
 
-        stderr = capfd.readouterr()[1]
+            assert exception.value.code is 2
 
-        assert stderr == dedent("""\
-            usage: {0} [-l|--list]
-            {0}: error: argument --set-password: not allowed with argument -l/--list
-            """.format(PROGRAM))
+            stderr = capfd.readouterr()[1]
+
+            args = [re.sub(r'^(-l|--list)$', '-l/--list', a) for a in args]
+            stderr_wanted = dedent("""\
+                {0}
+                {1}: error: argument {2}: not allowed with argument {3}
+                """.format(USAGE, PROGRAM, args[1], args[0]))
+
+            assert stderr == stderr_wanted
 
     def test_parse_args_version(self, capfd):
-        wanted = '{} {}\n'.format(PROGRAM, __version__)
+        wanted = '{0} {1}\n'.format(PROGRAM, __version__)
 
         with pytest.raises(SystemExit) as exception:
             configuration.parse_args(['--version'])
