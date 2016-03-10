@@ -37,7 +37,7 @@ def test_integration_is_a_tty(datafiles, capfd):
 
     directory = str(datafiles)
 
-    command = "unbuffer python3 -m updatewatch.updatewatch --dir '%s' --list" % directory
+    command = "unbuffer python -m updatewatch.updatewatch --dir '%s' --list" % directory
 
     status, stdout = subprocess.getstatusoutput(command)
 
