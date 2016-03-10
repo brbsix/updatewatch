@@ -27,7 +27,7 @@ setup(
         'console_scripts': ['updatewatch=updatewatch.updatewatch:main'],
     },
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-datafiles'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',

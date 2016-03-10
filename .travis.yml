@@ -1,3 +1,5 @@
+sudo: required
+
 language: python
 
 python:
@@ -8,6 +10,8 @@ python:
   - '3.5-dev' # 3.5 development branch
   - 'nightly' # currently points to 3.6-dev
 
-install: pip install keyrings.alt
+install:
+  - travis_retry sudo apt-get install --no-install-recommends -y expect
+  - pip install keyrings.alt
 
 script: python setup.py test

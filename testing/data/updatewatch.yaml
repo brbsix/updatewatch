@@ -1,0 +1,10 @@
+email:
+  enabled: false
+  from: 'username@gmail.com'
+  to: 'username@gmail.com'
+  subject: 'updatewatch'
+  smtp:
+    host: smtp.gmail.com
+    port: 587
+notify:
+  enabled: false

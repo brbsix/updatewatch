@@ -1,0 +1,20 @@
+description: system packages
+command: "echo 'docker-engine'"
+---
+description: Ruby 1.9.1 packages
+command: "echo 'mustache (0.99.8 < 1.0.2)'"
+---
+description: Ruby 2.1 packages
+command: "echo 'commander (4.2.1 < 4.4.0)'; echo 'slop (3.6.0 < 4.2.1)'"
+---
+description: Node.js modules
+command: "echo -e '\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mLatest\x1b[24m  \x1b[4mLocation\x1b[24m\n\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m'"
+---
+description: Python 2 packages
+command: "echo"
+---
+description: Python 3 packages
+command: "echo"
+---
+description: Vagrant boxes
+command: 'echo "* ''ubuntu/wily64'' is outdated! Current: 20160107.0.0. Latest: 20160305.0.0"'
