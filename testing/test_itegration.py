@@ -33,7 +33,11 @@ def test_integration_is_a_tty(datafiles, capfd):
     This test requires `unbuffer`, a command included with
     expect or expect-dev.
     """
+
+    # fail fast
     assert find_executable('unbuffer') is not None
+
+    stdout_wanted = "\x1b[1mChecking system packages...\x1b[0m\n\x1b[92mdocker-engine\x1b[0m\n\n\x1b[1mChecking Ruby 1.9.1 packages...\x1b[0m\n\x1b[92mmustache (0.99.8 < 1.0.2)\x1b[0m\n\n\x1b[1mChecking Ruby 2.1 packages...\x1b[0m\n\x1b[92mcommander (4.2.1 < 4.4.0)\x1b[0m\n\x1b[92mslop (3.6.0 < 4.2.1)\x1b[0m\n\n\x1b[1mChecking Node.js modules...\x1b[0m\n\x1b[?25h\x1b[K\x1b[?25h\x1b[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mLatest\x1b[24m  \x1b[4mLocation\x1b[24m\n\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m\n\n\x1b[1mChecking Vagrant boxes...\x1b[0m\n\x1b[92m* 'ubuntu/wily64' is outdated! Current: 20160107.0.0. Latest: 20160305.0.0\x1b[0m\n"
 
     directory = str(datafiles)
 
@@ -41,11 +45,7 @@ def test_integration_is_a_tty(datafiles, capfd):
 
     status, stdout = subprocess.getstatusoutput(command)
 
-    assert status is 0
-
-    stdout_wanted = "\x1b[1mChecking system packages...\x1b[0m\n\x1b[92mdocker-engine\x1b[0m\n\n\x1b[1mChecking Ruby 1.9.1 packages...\x1b[0m\n\x1b[92mmustache (0.99.8 < 1.0.2)\x1b[0m\n\n\x1b[1mChecking Ruby 2.1 packages...\x1b[0m\n\x1b[92mcommander (4.2.1 < 4.4.0)\x1b[0m\n\x1b[92mslop (3.6.0 < 4.2.1)\x1b[0m\n\n\x1b[1mChecking Node.js modules...\x1b[0m\n\x1b[?25h\x1b[K\x1b[?25h\x1b[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mLatest\x1b[24m  \x1b[4mLocation\x1b[24m\n\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m\n\n\x1b[1mChecking Vagrant boxes...\x1b[0m\n\x1b[92m* 'ubuntu/wily64' is outdated! Current: 20160107.0.0. Latest: 20160305.0.0\x1b[0m\n"
-
-    assert stdout == stdout_wanted
+    assert status is 0 and stdout == stdout_wanted
 
 
 @DATA_FILES
@@ -55,10 +55,10 @@ def test_integration_not_a_tty(datafiles, capfd):
     with pytest.raises(SystemExit) as exception:
         main(['--dir', directory, '--list'])
 
-    assert exception.value.code is 0
+    status = exception.value.code
 
     stdout, stderr = capfd.readouterr()
 
     stdout_wanted = "Checking system packages...\ndocker-engine\n\nChecking Ruby 1.9.1 packages...\nmustache (0.99.8 < 1.0.2)\n\nChecking Ruby 2.1 packages...\ncommander (4.2.1 < 4.4.0)\nslop (3.6.0 < 4.2.1)\n\nChecking Node.js modules...\nPackage  Current  Wanted  Latest  Location\nnpm        3.7.5   3.8.0   3.8.0  \n\nChecking Vagrant boxes...\n* 'ubuntu/wily64' is outdated! Current: 20160107.0.0. Latest: 20160305.0.0\n\n"
 
-    assert stdout == stdout_wanted
+    assert status is 0 and stdout == stdout_wanted
