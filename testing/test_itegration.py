@@ -35,7 +35,7 @@ def test_integration_is_a_tty(datafiles, capfd):
     directory = str(datafiles)
 
     # fool the program into thinking it has a tty
-    command = '''script -qfc "python3 -m updatewatch.updatewatch --dir '%s' --list" /dev/null''' % directory
+    command = '''script -eqfc "python3 -m updatewatch.updatewatch --dir '%s' --list" /dev/null''' % directory
 
     status, stdout = subprocess.getstatusoutput(command)
 
