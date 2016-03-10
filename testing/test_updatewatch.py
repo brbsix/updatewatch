@@ -22,7 +22,7 @@ class TestCheck:
             {'description': 'update E',
              'command': 'echo otherapp; echo warning >&2'},
             {'description': 'Node.js modules',
-             'command': "echo '\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b[K"
+             'command': "echo -e '\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b[K"
                         "\x1b[4mPackage\x1b[24m  \x1b[4mCurrent\x1b[24m  \x1b["
                         "4mWanted\x1b[24m  \x1b[4mLatest\x1b[24m  \x1b[4mLocat"
                         "ion\x1b[24m\n\x1b[33mnpm\x1b[39m        3.7.5   \x1b"
