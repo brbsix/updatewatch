@@ -13,6 +13,6 @@ python:
 
 install:
   - travis_retry sudo apt-get install --no-install-recommends -y expect-dev
-  - pip install keyrings.alt
+  - pip install keyrings.alt PyYAML
 
 script: python setup.py test
