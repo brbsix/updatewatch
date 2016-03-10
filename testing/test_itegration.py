@@ -41,11 +41,11 @@ def test_integration_is_a_tty(datafiles, capfd):
 
     directory = str(datafiles)
 
-    command = "unbuffer python -m updatewatch.updatewatch --dir '%s' --list" % directory
+    command = "unbuffer python3 -m updatewatch.updatewatch --dir '%s' --list" % directory
 
     status, stdout = subprocess.getstatusoutput(command)
 
-    assert status is 0 and stdout == stdout_wanted
+    assert stdout == stdout_wanted and status is 0
 
 
 @DATA_FILES
@@ -61,4 +61,4 @@ def test_integration_not_a_tty(datafiles, capfd):
 
     stdout_wanted = "Checking system packages...\ndocker-engine\n\nChecking Ruby 1.9.1 packages...\nmustache (0.99.8 < 1.0.2)\n\nChecking Ruby 2.1 packages...\ncommander (4.2.1 < 4.4.0)\nslop (3.6.0 < 4.2.1)\n\nChecking Node.js modules...\nPackage  Current  Wanted  Latest  Location\nnpm        3.7.5   3.8.0   3.8.0  \n\nChecking Vagrant boxes...\n* 'ubuntu/wily64' is outdated! Current: 20160107.0.0. Latest: 20160305.0.0\n\n"
 
-    assert status is 0 and stdout == stdout_wanted
+    assert stdout == stdout_wanted and status is 0
