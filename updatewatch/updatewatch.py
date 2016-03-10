@@ -165,7 +165,6 @@ def main(args=None):
     options = configuration.parse_args(args)
 
     # configure logging
-    # _scriptlogger(options.logfile, options.loglevel)
     configuration.initlogger(options.logfile, options.loglevel)
 
     LOG.debug('options: %s', options)
