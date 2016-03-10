@@ -12,7 +12,7 @@ python:
   - 'nightly' # currently points to 3.6-dev
 
 install:
-  - travis_retry sudo apt-get install --no-install-recommends -y expect
+  - travis_retry sudo apt-get install --no-install-recommends -y expect-dev
   - pip install keyrings.alt
 
 script: python setup.py test

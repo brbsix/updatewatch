@@ -29,7 +29,10 @@ DATA_FILES = pytest.mark.datafiles(
 
 @DATA_FILES
 def test_integration_is_a_tty(datafiles, capfd):
-    """This test requires `unbuffer`, a command included with expect."""
+    """
+    This test requires `unbuffer`, a command included with
+    expect or expect-dev.
+    """
     assert find_executable('unbuffer') is not None
 
     directory = str(datafiles)
