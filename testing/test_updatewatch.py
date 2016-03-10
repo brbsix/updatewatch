@@ -217,7 +217,7 @@ class TestGetUpdates:
             {'command': 'command E', 'description': 'update E'}
         ]
 
-        path = str(tmpdir.join('updates.yaml'))
+        path = str(tmpdir / 'updates.yaml')
 
         with open(path, 'w') as file:
             file.write(document)

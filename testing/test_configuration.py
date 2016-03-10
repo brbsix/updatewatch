@@ -28,7 +28,7 @@ class TestDirectory:
 
     def test_directory_does_not_exist(self, tmpdir):
         while True:
-            badpath = str(tmpdir.join(str(random.random())[2:]))
+            badpath = str(tmpdir / str(random.random())[2:])
             if not os.path.isdir(badpath):
                 break
 
@@ -108,7 +108,7 @@ class TestParseArgs:
 
     def test_parse_args_dir_does_not_exist(self, capfd, tmpdir):
         while True:
-            badpath = str(tmpdir.join(str(random.random())[2:]))
+            badpath = str(tmpdir / str(random.random())[2:])
             if not os.path.isdir(badpath):
                 break
 
@@ -205,7 +205,7 @@ class TestPopulate:
             }
         }
 
-        path = str(tmpdir.join('file.yaml'))
+        path = str(tmpdir / 'file.yaml')
 
         with open(path, 'w') as file:
             file.write(document)
@@ -242,7 +242,7 @@ class TestPopulate:
             """)
 
         while True:
-            path = str(tmpdir.join(str(random.random())[2:]))
+            path = str(tmpdir / str(random.random())[2:])
             if not os.path.exists(path):
                 break
 
@@ -266,7 +266,7 @@ class TestYampDump:
 
         document = '{key: value, otherkey: othervalue, somekey: somevalue}\n'
 
-        path = str(tmpdir.join('file.yaml'))
+        path = str(tmpdir / 'file.yaml')
 
         configuration.yaml_dump(data, path)
 
@@ -284,7 +284,7 @@ class TestYamlLoad:
             'somekey': 'somevalue'
         }
 
-        path = str(tmpdir.join('file.yaml'))
+        path = str(tmpdir / 'file.yaml')
 
         with open(path, 'w') as file:
             file.write(document)
