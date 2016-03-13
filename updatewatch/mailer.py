@@ -59,7 +59,7 @@ def make_html(results, subject=None):
                 yield '&nbsp;<b>%s</b><br>' % result['description']
                 for line in result['stdout']:
                     # ignore headers and just print the first field
-                    newln = line.split(' ')[0]
+                    newln = line.lstrip(' \t*').split()[0].strip('\'"')
                     if line in result['new']:
                         yield '+%s<br>' % reporters.Terminal.clean(newln)
                     else:
