@@ -28,7 +28,7 @@ DATA_FILES = pytest.mark.datafiles(
 
 
 @DATA_FILES
-def test_integration_is_a_tty(datafiles, capfd):
+def test_integration_is_a_tty(datafiles):
 
     stdout_wanted = "\x1b[1mChecking system packages...\x1b[0m\n\x1b[92mdocker-engine\x1b[0m\n\n\x1b[1mChecking Ruby 1.9.1 packages...\x1b[0m\n\x1b[92mmustache (0.99.8 < 1.0.2)\x1b[0m\n\n\x1b[1mChecking Ruby 2.1 packages...\x1b[0m\n\x1b[92mcommander (4.2.1 < 4.4.0)\x1b[0m\n\x1b[92mslop (3.6.0 < 4.2.1)\x1b[0m\n\n\x1b[1mChecking Node.js modules...\x1b[0m\n\x1b[?25h\x1b[K\x1b[?25h\x1b[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mLatest\x1b[24m  \x1b[4mLocation\x1b[24m\n\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m\n\n\x1b[1mChecking Vagrant boxes...\x1b[0m\n\x1b[92m* 'ubuntu/wily64' is outdated! Current: 20160107.0.0. Latest: 20160305.0.0\x1b[0m\n"
 
