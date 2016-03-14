@@ -70,8 +70,8 @@ class TestCheck:
              'status': 0,
              'stderr': [],
              'stdout': [
-                '\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0'
-                '\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m'
+                 '\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0'
+                 '\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m'
              ]}
         ]
 
@@ -177,8 +177,8 @@ class TestGetHash:
 
     def test_get_hash_list_of_simple_dicts(self):
         assert updatewatch.get_hash(
-            [{'keyA': 'valueA'}, {'keyB': 'valueB'}
-             ]) == '7ee146a87a81fff9799afaedffbea38a240c7682'
+            [{'keyA': 'valueA'}, {'keyB': 'valueB'}]
+            ) == '7ee146a87a81fff9799afaedffbea38a240c7682'
 
     def test_get_hash_list_of_complex_dicts(self):
         assert updatewatch.get_hash(
@@ -186,8 +186,8 @@ class TestGetHash:
               'otherkeyA': 'othervalueA'}, {'keyB': 'valueB',
                                             'otherkeyB': 'othervalueB'},
              {'keyC': 'valueC',
-              'otherkeyC': 'othervalueC'}
-             ]) == 'c55a6edfeee89d4af64632b35836d680d92b95b1'
+              'otherkeyC': 'othervalueC'}]
+            ) == 'c55a6edfeee89d4af64632b35836d680d92b95b1'
 
 
 class TestGetUpdates:
@@ -241,9 +241,9 @@ class TestHashablize:
                                            ('otherkey', 'othervalue'))
 
     def test_hashablize_list_of_simple_dicts(self):
-        assert updatewatch.hashablize([{'keyA': 'valueA'}, {'keyB': 'valueB'}
-                                       ]) == ((('keyA', 'valueA'), ),
-                                              (('keyB', 'valueB'), ))
+        assert updatewatch.hashablize(
+            [{'keyA': 'valueA'}, {'keyB': 'valueB'}]) == (
+                (('keyA', 'valueA'), ), (('keyB', 'valueB'), ))
 
     def test_hashablize_list_of_complex_dicts(self):
         assert updatewatch.hashablize(
