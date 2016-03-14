@@ -64,23 +64,23 @@ def parse_args(args):
         help='override default configuration directory',
         type=directory)
 
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument(
+    mgroup = parser.add_mutually_exclusive_group()
+    mgroup.add_argument(
         '-l', '--list',
         action='store_true',
         help='list available updates')
-    group.add_argument(
+    mgroup.add_argument(
         '--set-password',
         action='store_true',
         help='set email account password')
 
-    group = parser.add_argument_group('logging options')
-    group.add_argument(
+    lgroup = parser.add_argument_group('logging options')
+    lgroup.add_argument(
         '--debug',
         action='store_true',
         # help='set the logging level to debug'
         help=argparse.SUPPRESS)
-    group.add_argument(
+    lgroup.add_argument(
         '--log',
         const=True,
         dest='logfile',
@@ -88,12 +88,12 @@ def parse_args(args):
         help=argparse.SUPPRESS,
         nargs='?')
 
-    group = parser.add_argument_group('program options')
-    group.add_argument(
+    pgroup = parser.add_argument_group('program options')
+    pgroup.add_argument(
         '-h', '--help',
         action='help',
         help=argparse.SUPPRESS)
-    group.add_argument(
+    pgroup.add_argument(
         '--version',
         action='version',
         help=argparse.SUPPRESS,
