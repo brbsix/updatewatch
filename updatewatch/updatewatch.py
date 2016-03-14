@@ -47,23 +47,17 @@ def difference(current, previous):
     new = set(current['stdout']) - set(previous['stdout'])
 
     LOG.debug('new is %s', new)
+    current['new'] = new
 
-    # update the record only if there are new updates or an update poll
-    # has been performed without error
-    if new or not current['stderr']:
-        if new:
-            LOG.debug('current record has updates (%s)', new)
-        elif not current['stderr']:
-            LOG.debug('current record has no errors')
-        LOG.debug('updating record')
-        current['new'] = new
-        return current
-    else:
-        LOG.debug('skipping record')
-        previous['description'] = current['description']
-        # be sure to wipe the old set before adding it to the data
-        previous['new'] = set()
-        return previous
+    # preserve stdout of previous result if update check experiences
+    # and error and has no output
+    # Note: this won't be displayed by any reporters because new is empty
+    if (current['stderr'] or current['status'] != 0) and \
+            not current['stdout'] and previous['stdout']:
+        LOG.debug('preserving previous stdout: %s', previous['stdout'])
+        current['stdout'] = previous['stdout']
+
+    return current
 
 
 def difference_list(current, previous):
