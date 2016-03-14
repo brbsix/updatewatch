@@ -35,39 +35,41 @@ def check(updates):
     return (next(p) for p in processes)
 
 
-def difference(new, old):
-    """Compare new update information with old information."""
-    data = []
-    for current, previous in itertools.zip_longest(new, old):
-        if previous is None:
-            previous = make_default()
+def difference(current, previous):
+    """Compare new information with old information."""
+    if previous is None:
+        previous = make_default()
 
-        LOG.debug('processing current: %s', current['description'])
-        LOG.debug('processing previous: %s', previous['description'])
+    LOG.debug('processing current: %s', current['description'])
+    LOG.debug('processing previous: %s', previous['description'])
 
-        # find the difference between two sets
-        new = set(current['stdout']) - set(previous['stdout'])
+    # find the difference between two sets
+    new = set(current['stdout']) - set(previous['stdout'])
 
-        LOG.debug('new is %s', new)
+    LOG.debug('new is %s', new)
 
-        # update the record only if there are new updates or an update poll
-        # has been performed without error
-        if new or not current['stderr']:
-            if new:
-                LOG.debug('current record has new updates (%s)', new)
-            elif not current['stderr']:
-                LOG.debug('current record has no errors')
-            LOG.debug('updating record')
-            current['new'] = new
-            data.append(current)
-        else:
-            LOG.debug('skipping record')
-            previous['description'] = current['description']
-            # be sure to wipe the old set before adding it to the data
-            previous['new'] = set()
-            data.append(previous)
+    # update the record only if there are new updates or an update poll
+    # has been performed without error
+    if new or not current['stderr']:
+        if new:
+            LOG.debug('current record has updates (%s)', new)
+        elif not current['stderr']:
+            LOG.debug('current record has no errors')
+        LOG.debug('updating record')
+        current['new'] = new
+        return current
+    else:
+        LOG.debug('skipping record')
+        previous['description'] = current['description']
+        # be sure to wipe the old set before adding it to the data
+        previous['new'] = set()
+        return previous
 
-    return data
+
+def difference_list(current, previous):
+    """Compare list of new information with list of old information."""
+    return [difference(c, p) for c, p in
+            itertools.zip_longest(current, previous)]
 
 
 def execute(description, command, timeout='3m'):
@@ -111,7 +113,7 @@ def get_data(results, path, updates):
         existing = database.get(key, [])
         LOG.debug('existing is %s', existing)
 
-        data = difference(results, existing)
+        data = difference_list(results, existing)
 
         # write to database
         LOG.debug('updating database')
