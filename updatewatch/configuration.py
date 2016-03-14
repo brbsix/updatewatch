@@ -134,6 +134,7 @@ def populate(path):
     try:
         FileNotFoundError
     except NameError:
+        # pylint: disable=invalid-name,redefined-builtin
         FileNotFoundError = IOError
 
     try:
