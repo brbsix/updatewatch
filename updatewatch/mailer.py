@@ -23,8 +23,12 @@ def email(message, email_config):
     password = keyring.get_password(smtp_server, email_from)
 
     mailer = smtplib.SMTP(smtp_server, port)
+    # identify ourselves to smtp gmail client
     mailer.ehlo()
+    # secure connection with TLS encryption
     mailer.starttls()
+    # re-identify encrypted connection
+    mailer.ehlo()
     mailer.login(email_from, password)
     mailer.sendmail(email_from, email_to, message.encode())
 
