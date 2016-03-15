@@ -5,6 +5,7 @@
 import getpass
 import smtplib
 import sys
+from email.mime.text import MIMEText
 from textwrap import dedent
 
 # external imports
@@ -14,13 +15,17 @@ import keyring
 from . import __program__, reporters
 
 
-def email(message, email_config):
+def send_email(msg, email_config):
     """Send an email message."""
     email_from = email_config['from']
     email_to = email_config['to']
     smtp_server = email_config['smtp']['host']
     port = email_config['smtp']['port']
-    password = keyring.get_password(smtp_server, email_from)
+    try:
+        login = email_config['smtp']['login']
+    except KeyError:
+        login = email_from
+    password = keyring.get_password(smtp_server, login)
 
     mailer = smtplib.SMTP(smtp_server, port)
     # identify ourselves to smtp gmail client
@@ -29,8 +34,8 @@ def email(message, email_config):
     mailer.starttls()
     # re-identify encrypted connection
     mailer.ehlo()
-    mailer.login(email_from, password)
-    mailer.sendmail(email_from, email_to, message.encode())
+    mailer.login(login, password)
+    mailer.sendmail(email_from, email_to, msg)
 
 
 def email_new(results, email_config):
@@ -39,24 +44,19 @@ def email_new(results, email_config):
     if email_config.get('enabled'):
         new = any(r.get('new') for r in results)
         if new:
-            subject = email_config.get('subject')
-            html = make_html(results, subject)
-            email(html, email_config)
+            msg = make_msg(results, email_config)
+            send_email(msg, email_config)
 
 
-def make_html(results, subject=None):
+def make_html(results):
     """Return HTML message."""
     def iter_html():
         """Generate strings of HTML."""
         yield dedent(
             '''\
-            Content-type: text/html
-            Subject: {subject}
-
             <span style="font-family: Courier, monospace;">
             <span style="font-size: 14px;">
-            '''.format(
-                subject=subject if subject is not None else __program__))
+            ''')
         for result in results:
             if result['stdout']:
                 yield '<p>'
@@ -85,6 +85,18 @@ def make_html(results, subject=None):
     return '\n'.join(iter_html())
 
 
+def make_msg(results, email_config):
+    """Return email message."""
+
+    html = make_html(results)
+    msg = MIMEText(html, 'html')
+    msg['Subject'] = email_config.get('subject', __program__)
+    msg['From'] = email_config['from']
+    msg['To'] = email_config['to']
+
+    return msg.as_string()
+
+
 def set_password(email_config):
     """
     Interactively set a keyring password for the
@@ -93,13 +105,17 @@ def set_password(email_config):
 
     email_from = email_config['from']
     smtp_server = email_config['smtp']['host']
+    try:
+        login = email_config['smtp']['login']
+    except KeyError:
+        login = email_from
 
     try:
         password = getpass.getpass(
             prompt="Enter password for '{}' using '{}': ".format(
-                email_from, smtp_server))
+                login, smtp_server))
     except KeyboardInterrupt:
         print()
         sys.exit(1)
 
-    keyring.set_password(smtp_server, email_from, password)
+    keyring.set_password(smtp_server, login, password)

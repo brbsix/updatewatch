@@ -3,6 +3,8 @@
 
 # standard imports
 import random
+from email.mime.text import MIMEText
+from textwrap import dedent
 
 # external imports
 import keyring
@@ -12,8 +14,8 @@ from updatewatch import __program__
 from updatewatch import mailer
 
 
-class TestMakeHTML:
-    def test_make_html(self):
+class TestMakeMsg:
+    def test_make_msg(self):
         results = [
             {'description': 'update A',
              'header': None,
@@ -59,35 +61,71 @@ class TestMakeHTML:
              ]}
         ]
 
-        html_template = (
-            'Content-type: text/html\n'
-            'Subject: {subject}\n\n'
-            '<span style="font-family: Courier, monospace;">\n'
-            '<span style="font-size: 14px;">\n\n'
-            '<p>\n'
-            '&nbsp;<b>update C</b><br>\n'
-            '&nbsp;someapp<br>\n'
-            '</p>\n<p>\n'
-            '&nbsp;<b>update E</b><br>\n'
-            '&nbsp;otherapp<br>\n'
-            '</p>\n<p>\n'
-            '&nbsp;<b>Node.js modules</b><br>\n'
-            '&nbsp;npm<br>\n'
-            '</p>\n'
-            '</span>\n\n'
-            '<span style="font-size: 12px;">\n'
-            '<p>\n'
-            '<i>Sent courtesy updatewatch</i>\n<br>\n'
-            '<i>Copyright ©2016 Six (brbsix@gmail.com)</i>\n</p>\n'
-            '</span>\n</span>\n'
-        )
+        html = dedent("""\
+            <span style="font-family: Courier, monospace;">
+            <span style="font-size: 14px;">
 
-        assert mailer.make_html(results) == \
-            html_template.format(subject=__program__)
+            <p>
+            &nbsp;<b>update C</b><br>
+            &nbsp;someapp<br>
+            </p>
+            <p>
+            &nbsp;<b>update E</b><br>
+            &nbsp;otherapp<br>
+            </p>
+            <p>
+            &nbsp;<b>Node.js modules</b><br>
+            &nbsp;npm<br>
+            </p>
+            </span>
 
-        subject = 'custom subject'
-        assert mailer.make_html(results, subject) == \
-            html_template.format(subject=subject)
+            <span style="font-size: 12px;">
+            <p>
+            <i>Sent courtesy updatewatch</i>
+            <br>
+            <i>Copyright ©2016 Six (brbsix@gmail.com)</i>
+            </p>
+            </span>
+            </span>
+            """)
+
+        msg_default = MIMEText(html, 'html')
+        msg_default['Subject'] = __program__
+        msg_default['From'] = 'example@domain.com'
+        msg_default['To'] = 'example@domain.com'
+        msg_default_config = {
+            'enabled': True,
+            'from': 'example@domain.com',
+            'to': 'example@domain.com',
+            'smtp': {
+                'host': 'smtp.domain.com',
+                'login': 'example@domain.com',
+                'port': 587
+            }
+        }
+
+        assert mailer.make_msg(results, msg_default_config) == \
+            msg_default.as_string()
+
+        custom_subject = 'custom subject'
+        msg_custom = MIMEText(html, 'html')
+        msg_custom['Subject'] = custom_subject
+        msg_custom['From'] = 'example@domain.com'
+        msg_custom['To'] = 'example@domain.com'
+        msg_custom_config = {
+            'enabled': True,
+            'from': 'example@domain.com',
+            'to': 'example@domain.com',
+            'subject': custom_subject,
+            'smtp': {
+                'host': 'smtp.domain.com',
+                'login': 'example@domain.com',
+                'port': 587
+            }
+        }
+
+        assert mailer.make_msg(results, msg_custom_config) == \
+            msg_custom.as_string()
 
 
 class TestSetPasword:
