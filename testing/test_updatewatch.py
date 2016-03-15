@@ -84,6 +84,84 @@ class TestCheck:
             assert returned == wanted
 
 
+class TestDifference:
+    def test_difference_empty(self):
+        current = make_result(description='system packages',
+                              stdout=['docker-engine', 'golang'])
+        previous = updatewatch.make_default()
+        difference = make_result(description='system packages',
+                                 new={'docker-engine', 'golang'},
+                                 stdout=['docker-engine', 'golang'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+    def test_difference_simple(self):
+        current = make_result(description='system packages',
+                              stdout=['docker-engine', 'golang'])
+        previous = make_result(description='system packages')
+        difference = make_result(description='system packages',
+                                 new={'docker-engine', 'golang'},
+                                 stdout=['docker-engine', 'golang'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+    def test_difference_incremental(self):
+        current = make_result(description='system packages',
+                              stdout=['docker-engine', 'golang'])
+        previous = make_result(description='system packages',
+                               stdout=['docker-engine'])
+        difference = make_result(description='system packages',
+                                 new={'golang'},
+                                 stdout=['docker-engine', 'golang'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+    def test_difference_same(self):
+        current = make_result(description='system packages',
+                              stdout=['docker-engine', 'golang'])
+        previous = make_result(description='system packages',
+                               stdout=['docker-engine', 'golang'])
+        difference = make_result(description='system packages',
+                                 stdout=['docker-engine', 'golang'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+    def test_difference_status_and_stderr(self):
+        current = make_result(description='system packages',
+                              status=1,
+                              stderr=['ERROR: Failed to resynchronize package index files from their sources'])
+        previous = make_result(description='system packages',
+                               stdout=['docker-engine', 'golang'])
+        difference = make_result(description='system packages',
+                                 status=1,
+                                 stdout=['docker-engine', 'golang'],
+                                 stderr=['ERROR: Failed to resynchronize package index files from their sources'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+    def test_difference_status(self):
+        current = make_result(description='system packages',
+                              status=1)
+        previous = make_result(description='system packages',
+                               stdout=['docker-engine', 'golang'])
+        difference = make_result(description='system packages',
+                                 status=1,
+                                 stdout=['docker-engine', 'golang'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+    def test_difference_stderr(self):
+        current = make_result(description='system packages',
+                              stderr=['ERROR: Failed to resynchronize package index files from their sources'])
+        previous = make_result(description='system packages',
+                               stdout=['docker-engine', 'golang'])
+        difference = make_result(description='system packages',
+                                 stdout=['docker-engine', 'golang'],
+                                 stderr=['ERROR: Failed to resynchronize package index files from their sources'])
+
+        assert updatewatch.difference(current, previous) == difference
+
+
 class TestExecute:
     def test_execute(self):
         kwargs = {
@@ -469,3 +547,36 @@ class TestModifierNodeJs:
             '\x1b[33mnpm\x1b[39m                1.1.25  \x1b[32m3.8.0\x1b[39m '
             '  \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m'
         ]
+
+
+def make_result(description=None,
+                header=None,
+                new=None,
+                status=None,
+                stderr=None,
+                stdout=None):
+    """Create a result."""
+
+    # configure defaults
+    description = '' if description is None else description
+    new = set() if new is None else new
+    status = 0 if status is None else status
+    stderr = [] if stderr is None else stderr
+    stdout = [] if stdout is None else stdout
+
+    # validate input
+    assert isinstance(description, str)
+    assert isinstance(header, (str, type(None)))
+    assert isinstance(new, set)
+    assert isinstance(status, int)
+    assert isinstance(stderr, list)
+    assert isinstance(stdout, list)
+
+    return {
+        'description': description,
+        'header': header,
+        'new': new,
+        'status': status,
+        'stderr': stderr,
+        'stdout': stdout
+    }
