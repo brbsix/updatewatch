@@ -23,8 +23,8 @@ def directory(path):
     return path
 
 
-def initlogger(logfile=None, loglevel=logging.WARNING):
-    """Configure program logger."""
+def initialize_logging(logfile=None, loglevel=logging.WARNING):
+    """Initialize program logger."""
 
     scriptlogger = logging.getLogger(__program__)
 
