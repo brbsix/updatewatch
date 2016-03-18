@@ -159,7 +159,8 @@ class TestParseArgs:
                 updates=os.path.join(directory, 'updates.yaml'))
 
     def test_parse_args_conflict(self, capfd):
-        combos = ((a, '--set-password')[::o] for o in (1, -1) for a in ('-l', '--list'))
+        combos = ((a, '--set-password')[::o] for o in (1, -1)
+                  for a in ('-l', '--list'))
         for args in combos:
 
             with pytest.raises(SystemExit) as exception:
