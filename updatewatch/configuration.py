@@ -91,14 +91,12 @@ def parse_args(args):
     lgroup.add_argument(
         '--debug',
         action='store_true',
-        # help='set the logging level to debug'
-        help=argparse.SUPPRESS)
+        help='set the logging level to debug')
     lgroup.add_argument(
         '--log',
         const=True,
         dest='logfile',
-        # help='set log file destination'
-        help=argparse.SUPPRESS,
+        help='set log file destination',
         nargs='?')
 
     pgroup = parser.add_argument_group('program options')
