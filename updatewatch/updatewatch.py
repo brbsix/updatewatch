@@ -96,18 +96,18 @@ def get_data(results, path, updates):
     """Get latest data, compare it to previous data, then shelve the result."""
     with shelve.open(path) as database:
 
-        # get hash of updates file to check whether it has changed
+        # get hash of updates dictionary to check whether it has changed
         key = get_hash(updates)
         LOG.debug('current key is %s', key)
 
         # print keys of all pre-existing entries stored in DB
-        LOG.debug('existing keys: %s', list(database))
+        LOG.debug('previous keys: %s', list(database))
 
         # get pre-existing entry stored in DB
-        existing = database.get(key, [])
-        LOG.debug('existing is %s', existing)
+        previous = database.get(key, [])
+        LOG.debug('previous is %s', previous)
 
-        data = difference_list(results, existing)
+        data = difference_list(results, previous)
 
         # write to database
         LOG.debug('updating database')
