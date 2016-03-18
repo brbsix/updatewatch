@@ -1,4 +1,16 @@
 # -*- coding: utf-8 -*-
+"""
+Application setup script
+
+To build package:
+python3 setup.py sdist bdist_wheel clean
+
+To run tests in an virtualenv:
+python3 setup.py test
+
+To run tests directly with verbose output:
+python3 -m pytest -vv
+"""
 
 from setuptools import find_packages, setup
 from updatewatch import __description__, __program__, __version__
