@@ -4,7 +4,6 @@
 # standard imports
 import os
 import subprocess
-from distutils.spawn import find_executable
 
 # external imports
 import py
