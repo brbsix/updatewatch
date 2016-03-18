@@ -20,7 +20,7 @@ from updatewatch import configuration
 
 
 PROGRAM = os.path.basename(sys.argv[0])
-USAGE = 'usage: %s [-l|--list]' % PROGRAM
+USAGE = 'usage: %s [-d DIRECTORY] [COMMAND]' % PROGRAM
 
 
 class TestDirectory:

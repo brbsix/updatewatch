@@ -68,7 +68,7 @@ def parse_args(args):
         add_help=False,
         description='Poll for new updates.',
         formatter_class=SmartFormatter,
-        usage='%(prog)s [-l|--list]')
+        usage='%(prog)s [-d DIRECTORY] [COMMAND]')
 
     parser.add_argument(
         '-d', '--dir',
