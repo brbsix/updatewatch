@@ -53,15 +53,28 @@ def initialize_logging(logfile=None, loglevel=logging.WARNING):
 def parse_args(args):
     """Parse command-line arguments."""
 
+    class SmartFormatter(argparse.HelpFormatter):
+        """Permit the use of raw text in help messages with 'r|' prefix."""
+
+        def _split_lines(self, text, width):
+            """argparse.RawTextHelpFormatter._split_lines"""
+            if text.startswith('r|'):
+                return text[2:].splitlines()
+            return argparse.HelpFormatter._split_lines(self, text, width)
+
+    default_directory = appdirs.user_config_dir(__program__)
+
     parser = argparse.ArgumentParser(
         add_help=False,
         description='Poll for new updates.',
+        formatter_class=SmartFormatter,
         usage='%(prog)s [-l|--list]')
 
     parser.add_argument(
         '-d', '--dir',
         dest='directory',
-        help='override default configuration directory',
+        help='r|override default config directory\n'
+             '(typically %s)' % default_directory,
         type=directory)
 
     mgroup = parser.add_mutually_exclusive_group()
@@ -104,7 +117,7 @@ def parse_args(args):
     # if no application directory has been set, configure a default
     # and create the directory if none exists
     if options.directory is None:
-        options.directory = appdirs.user_config_dir(__program__)
+        options.directory = default_directory
         os.makedirs(options.directory, exist_ok=True)
 
     # application config paths
