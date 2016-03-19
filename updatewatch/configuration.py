@@ -77,11 +77,26 @@ def parse_args(args):
              '(typically %s)' % default_directory,
         type=directory)
 
-    mgroup = parser.add_mutually_exclusive_group()
+    cgroup = parser.add_argument_group('commands')
+    mgroup = cgroup.add_mutually_exclusive_group()
+    # leave -l flag for backwards compatibility
     mgroup.add_argument(
-        '-l', '--list',
+        '-l',
+        action='store_true',
+        dest='list',
+        help=argparse.SUPPRESS)
+    mgroup.add_argument(
+        '--list',
         action='store_true',
         help='list available updates')
+    mgroup.add_argument(
+        '--list-from-cache',
+        action='store_true',
+        help='list available updates from cache')
+    mgroup.add_argument(
+        '--run-from-cache',
+        action='store_true',
+        help='list new updates from cache')
     mgroup.add_argument(
         '--set-password',
         action='store_true',
@@ -140,6 +155,8 @@ def populate(path):
     Return the application's configuration data, populating it
     if necessary.
     """
+
+    LOG.debug('running configuration.populate')
 
     # add support for Python 3.3 and below
     try:

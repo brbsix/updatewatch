@@ -2,9 +2,13 @@
 """Display update results."""
 
 # standard imports
+import logging
 import re
 import subprocess
 import sys
+
+# application imports
+from . import __program__
 
 
 class Terminal:
@@ -74,8 +78,11 @@ class Terminal:
             print(Terminal.BRIGHT + msg + Terminal.RESET_ALL)
 
 
-def show_all(results, notify):
+def show_all(results, notify=False):
     """Display results via terminal and `notify-send`."""
+
+    LOG.debug('running reporters.show_all %s notify',
+              'with' if notify else 'without')
 
     count = 0
     for result in results:
@@ -104,6 +111,8 @@ def show_all(results, notify):
 def show_new(results):
     """Display results (if there is anything new)."""
 
+    LOG.debug('running reporters.show_new')
+
     new = any(r['new'] for r in results)
 
     if new:
@@ -118,3 +127,6 @@ def show_new(results):
                     else:
                         Terminal.info(' %s' % line)
                 Terminal.plain(' ')
+
+
+LOG = logging.getLogger(__program__)

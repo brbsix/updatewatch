@@ -3,6 +3,7 @@
 
 # standard imports
 import getpass
+import logging
 import smtplib
 import sys
 from email.mime.text import MIMEText
@@ -40,6 +41,8 @@ def send_email(msg, email_config):
 
 def email_new(results, email_config):
     """Email the results (if it is enabled and there is anything new)."""
+
+    LOG.debug('running mailer.email_new')
 
     if email_config.get('enabled'):
         new = any(r.get('new') for r in results)
@@ -103,6 +106,8 @@ def set_password(email_config):
     configured email account.
     """
 
+    LOG.debug('running mailer.set_password')
+
     email_from = email_config['from']
     smtp_server = email_config['smtp']['host']
     try:
@@ -119,3 +124,6 @@ def set_password(email_config):
         sys.exit(1)
 
     keyring.set_password(smtp_server, login, password)
+
+
+LOG = logging.getLogger(__program__)

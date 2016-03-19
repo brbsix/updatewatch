@@ -49,8 +49,10 @@ class TestParseArgs:
             database=os.path.join(directory, __program__ + '.db'),
             directory=directory,
             list=False,
+            list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
 
@@ -62,8 +64,10 @@ class TestParseArgs:
             database=os.path.join(directory, __program__ + '.db'),
             directory=directory,
             list=False,
+            list_from_cache=False,
             logfile=None,
             loglevel=logging.DEBUG,
+            run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
 
@@ -75,8 +79,10 @@ class TestParseArgs:
             database=os.path.join(directory, __program__ + '.db'),
             directory=directory,
             list=False,
+            list_from_cache=False,
             logfile=os.path.join(directory, __program__ + '.log'),
             loglevel=logging.WARNING,
+            run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
 
@@ -89,8 +95,10 @@ class TestParseArgs:
                 database=os.path.join(directory, __program__ + '.db'),
                 directory=directory,
                 list=False,
+                list_from_cache=False,
                 logfile='somepath',
                 loglevel=logging.WARNING,
+                run_from_cache=False,
                 set_password=False,
                 updates=os.path.join(directory, 'updates.yaml'))
 
@@ -102,8 +110,10 @@ class TestParseArgs:
             database=os.path.join(directory, __program__ + '.db'),
             directory=directory,
             list=False,
+            list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
 
@@ -136,13 +146,49 @@ class TestParseArgs:
             database=os.path.join(directory, __program__ + '.db'),
             directory=directory,
             list=True,
+            list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
 
         for arg in ('-l', '--list'):
             assert configuration.parse_args([arg]) == namespace
+
+    def test_parse_args_list_from_cache(self):
+        directory = appdirs.user_config_dir(__program__)
+
+        namespace = argparse.Namespace(
+            application=os.path.join(directory, __program__ + '.yaml'),
+            database=os.path.join(directory, __program__ + '.db'),
+            directory=directory,
+            list=False,
+            list_from_cache=True,
+            logfile=None,
+            loglevel=logging.WARNING,
+            run_from_cache=False,
+            set_password=False,
+            updates=os.path.join(directory, 'updates.yaml'))
+
+        assert configuration.parse_args(['--list-from-cache']) == namespace
+
+    def test_parse_args_run_from_cache(self):
+        directory = appdirs.user_config_dir(__program__)
+
+        namespace = argparse.Namespace(
+            application=os.path.join(directory, __program__ + '.yaml'),
+            database=os.path.join(directory, __program__ + '.db'),
+            directory=directory,
+            list=False,
+            list_from_cache=False,
+            logfile=None,
+            loglevel=logging.WARNING,
+            run_from_cache=True,
+            set_password=False,
+            updates=os.path.join(directory, 'updates.yaml'))
+
+        assert configuration.parse_args(['--run-from-cache']) == namespace
 
     def test_parse_args_set_password(self):
         directory = appdirs.user_config_dir(__program__)
@@ -153,8 +199,10 @@ class TestParseArgs:
                 database=os.path.join(directory, __program__ + '.db'),
                 directory=directory,
                 list=False,
+                list_from_cache=False,
                 logfile=None,
                 loglevel=logging.WARNING,
+                run_from_cache=False,
                 set_password=True,
                 updates=os.path.join(directory, 'updates.yaml'))
 
@@ -170,7 +218,7 @@ class TestParseArgs:
 
             stderr = capfd.readouterr()[1]
 
-            args = [re.sub(r'^(-l|--list)$', '-l/--list', a) for a in args]
+            # args = [re.sub(r'^(-l|--list)$', '-l/--list', a) for a in args]
             stderr_wanted = dedent("""\
                 {0}
                 {1}: error: argument {2}: not allowed with argument {3}

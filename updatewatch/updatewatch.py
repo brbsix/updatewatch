@@ -24,6 +24,67 @@ from . import __program__
 from . import configuration, mailer, reporters
 
 
+def action_default(options):
+    """Poll for new updates."""
+    LOG.debug('running action_default')
+    config = configuration.populate(options.application)
+    updates = get_updates(options.updates)
+    LOG.debug('updates: %s', updates)
+
+    # check for updates
+    results = check(updates)
+
+    # compare results with cache and store changes
+    data = get_data(results, options.database, updates)
+
+    reporters.show_new(data)
+    mailer.email_new(data, config.get('email'))
+
+
+def action_list(options):
+    """List available updates."""
+    LOG.debug('running action_list')
+    config = configuration.populate(options.application)
+    updates = get_updates(options.updates)
+    LOG.debug('updates: %s', updates)
+
+    # check for updates
+    results = check(updates)
+
+    # determine whether to notify upon results
+    try:
+        notify = config['notify']['enabled']
+    except KeyError:
+        notify = False
+
+    reporters.show_all(results, notify)
+
+
+def action_list_from_cache(options):
+    """List available updates from cache."""
+    LOG.debug('running action_list_from_cache')
+    updates = get_updates(options.updates)
+    LOG.debug('updates: %s', updates)
+    cache = get_cache(options.database, updates)
+    reporters.show_all(cache)
+
+
+def action_run_from_cache(options):
+    """List new updates from cache."""
+    LOG.debug('running action_run_from_cache')
+    updates = get_updates(options.updates)
+    LOG.debug('updates: %s', updates)
+    cache = get_cache(options.database, updates)
+    reporters.show_new(cache)
+
+
+def action_set_password(options):
+    """Set email account password."""
+    LOG.debug('running action_set_password')
+    config = configuration.populate(options.application)
+    mailer.set_password(config['email'])
+
+
 def check(updates):
     """Check for updates and return the results as a generator of processes."""
     processes = [execute(**u) for u in updates]
@@ -90,6 +151,38 @@ def execute(description, command, timeout='3m'):
         stdout, stderr = process.communicate()
         status = process.wait()
         yield make_result(description, stdout, stderr, status)
+
+
+def get_action(options):
+    """Return the appropriate function."""
+    if options.set_password:
+        return action_set_password
+    elif options.list:
+        return action_list
+    elif options.list_from_cache:
+        return action_list_from_cache
+    elif options.run_from_cache:
+        return action_run_from_cache
+    else:
+        return action_default
+
+
+def get_cache(path, updates):
+    """Get previous results from cache."""
+    with shelve.open(path) as database:
+
+        # get hash of updates dictionary
+        key = get_hash(updates)
+        LOG.debug('current key is %s', key)
+
+        # print keys of all pre-existing entries stored in DB
+        LOG.debug('previous keys: %s', list(database))
+
+        # get pre-existing entry stored in DB
+        previous = database.get(key, [])
+        LOG.debug('previous is %s', previous)
+
+        return previous
 
 
 def get_data(results, path, updates):
@@ -165,36 +258,15 @@ def main(args=None):
 
     LOG.debug('options: %s', options)
 
-    config = configuration.populate(options.application)
+    # determine the appropriate action
+    action = get_action(options)
 
-    if options.set_password:
-        LOG.debug('running mailer.set_password')
-        mailer.set_password(config.get('email'))
-        sys.exit(0)
+    LOG.debug('action: %s', action)
 
-    updates = get_updates(options.updates)
-    LOG.debug('updates: %s', updates)
+    # run the action
+    action(options)
 
-    results = check(updates)
-
-    if options.list:
-        try:
-            notify = config['notify']['enabled']
-        except KeyError:
-            notify = False
-        LOG.debug('running reporters.show_all %s notify',
-                  'with' if notify else 'without')
-        reporters.show_all(results, notify)
-        sys.exit(0)
-    else:
-        data = get_data(results, options.database, updates)
-
-        LOG.debug('running reporters.show_new')
-        reporters.show_new(data)
-
-        LOG.debug('running mailer.email_new')
-        mailer.email_new(data, config.get('email'))
-        sys.exit(0)
+    sys.exit(0)
 
 
 def make_default():
