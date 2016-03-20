@@ -318,37 +318,35 @@ class TestPopulate:
         assert document_returned == document_wanted
 
 
-class TestYampDump:
-    def test_yaml_dump(self, tmpdir):
-        data = {
-            'key': 'value',
-            'otherkey': 'othervalue',
-            'somekey': 'somevalue'
-        }
+def test_yaml_dump(tmpdir):
+    data = {
+        'key': 'value',
+        'otherkey': 'othervalue',
+        'somekey': 'somevalue'
+    }
 
-        document = '{key: value, otherkey: othervalue, somekey: somevalue}\n'
+    document = '{key: value, otherkey: othervalue, somekey: somevalue}\n'
 
-        path = str(tmpdir / 'file.yaml')
+    path = str(tmpdir / 'file.yaml')
 
-        configuration.yaml_dump(data, path)
+    configuration.yaml_dump(data, path)
 
-        with open(path) as file:
-            assert file.read() == document
+    with open(path) as file:
+        assert file.read() == document
 
 
-class TestYamlLoad:
-    def test_yaml_load(self, tmpdir):
-        document = '{key: value, otherkey: othervalue, somekey: somevalue}\n'
+def test_yaml_load(tmpdir):
+    document = '{key: value, otherkey: othervalue, somekey: somevalue}\n'
 
-        data = {
-            'key': 'value',
-            'otherkey': 'othervalue',
-            'somekey': 'somevalue'
-        }
+    data = {
+        'key': 'value',
+        'otherkey': 'othervalue',
+        'somekey': 'somevalue'
+    }
 
-        path = str(tmpdir / 'file.yaml')
+    path = str(tmpdir / 'file.yaml')
 
-        with open(path, 'w') as file:
-            file.write(document)
+    with open(path, 'w') as file:
+        file.write(document)
 
-        assert configuration.yaml_load(path) == data
+    assert configuration.yaml_load(path) == data
