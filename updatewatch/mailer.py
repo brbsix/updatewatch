@@ -28,15 +28,15 @@ def send_email(msg, email_config):
         login = email_from
     password = keyring.get_password(smtp_server, login)
 
-    mailer = smtplib.SMTP(smtp_server, port)
+    smtp_connection = smtplib.SMTP(smtp_server, port)
     # identify ourselves to smtp gmail client
-    mailer.ehlo()
+    smtp_connection.ehlo()
     # secure connection with TLS encryption
-    mailer.starttls()
+    smtp_connection.starttls()
     # re-identify encrypted connection
-    mailer.ehlo()
-    mailer.login(login, password)
-    mailer.sendmail(email_from, email_to, msg)
+    smtp_connection.ehlo()
+    smtp_connection.login(login, password)
+    smtp_connection.sendmail(email_from, email_to, msg)
 
 
 def email_new(results, email_config):
