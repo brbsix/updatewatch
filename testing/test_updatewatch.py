@@ -460,6 +460,21 @@ class TestModifierNodeJs:
                           'atest\x1b[24m  \x1b[4mLocation\x1b[24m')
         assert stdout == []
 
+    def test_modifer_node_js_header_only_malformed(self):
+        original_stdout = ['\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b'
+                           '[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent'
+                           '\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mL'
+                           'atest\x1b[24m  \x1b[4mLocation\x1b[24m',
+                           'somejunk']
+
+        header, stdout = updatewatch.modifier_node_js(original_stdout)
+
+        assert header == ('\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b'
+                          '[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent'
+                          '\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mL'
+                          'atest\x1b[24m  \x1b[4mLocation\x1b[24m')
+        assert stdout == []
+
     def test_modifer_node_js_header_only_not_outdated(self):
         original_stdout = [
             '\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b'
