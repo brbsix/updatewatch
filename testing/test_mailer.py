@@ -168,9 +168,9 @@ class TestEmailNew:
                       'Q29weXJpZ2h0IMKpMjAxNiBTaXggKGJyYnNpeEBnbWFpbC5jb20pPC9'
                       'pPgo8L3A+Cjwvc3Bh\nbj4KPC9zcGFuPgo=\n')
 
-        with mock.patch('updatewatch.mailer.send_email'):
+        with mock.patch('updatewatch.mailer.send_email') as mock_function:
             mailer.email_new(RESULTS_NEW, email_config)
-            mailer.send_email.assert_called_once_with(msg_wanted, email_config)
+            mock_function.assert_called_once_with(msg_wanted, email_config)
 
     def test_email_new_disabled(self):
         """Ensure no email is sent when it is disabled."""
@@ -185,9 +185,9 @@ class TestEmailNew:
             }
         }
 
-        with mock.patch('updatewatch.mailer.send_email'):
+        with mock.patch('updatewatch.mailer.send_email') as mock_function:
             mailer.email_new(RESULTS_NEW, email_config)
-            assert not mailer.send_email.called
+            assert not mock_function.called
 
     def test_email_new_no_new(self):
         """Ensure no email is sent when there are no new results."""
@@ -202,9 +202,9 @@ class TestEmailNew:
             }
         }
 
-        with mock.patch('updatewatch.mailer.send_email'):
+        with mock.patch('updatewatch.mailer.send_email') as mock_function:
             mailer.email_new(RESULTS, email_config)
-            assert not mailer.send_email.called
+            assert not mock_function.called
 
 
 class TestMakeMsg:
