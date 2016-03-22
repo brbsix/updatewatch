@@ -338,10 +338,13 @@ def modifier_node_js(stdout):
             LOG.debug('Node.js module_line: %s', repr(module_line))
             clean_line = reporters.Terminal.clean(module_line)
             LOG.debug('clean_line: %s', clean_line)
-            match = re.match(
-                r'(?P<package>\S+)\s+(?P<current>\S+)\s+(?P<wanted>\S+)\s+'
-                r'(?P<latest>\S+)(\s+(?P<location>\S+))?', clean_line
-            ).groupdict()
+            try:
+                match = re.match(
+                    r'(?P<package>\S+)\s+(?P<current>\S+)\s+(?P<wanted>\S+)\s+'
+                    r'(?P<latest>\S+)(\s+(?P<location>\S+))?', clean_line
+                ).groupdict()
+            except AttributeError:
+                continue
             package = match['package']
             LOG.debug('Node.js package: %s', package)
             current = match['current']
