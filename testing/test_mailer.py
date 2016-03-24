@@ -287,8 +287,8 @@ class TestSendEmail:
                 '{email_from}',
                 '{email_to}',
                 '{msg}')""".format(
-            email_from=email_from, email_to=email_to,
-            smtp_server=smtp_server, msg=msg))
+                    email_from=email_from, email_to=email_to,
+                    smtp_server=smtp_server, msg=msg))
 
         # send email with mockups
         mailer.send_email(msg, email_config)
@@ -335,8 +335,8 @@ class TestSendEmail:
                 '{email_from}',
                 '{email_to}',
                 '{msg}')""".format(
-            email_from=email_from, email_to=email_to, login=login,
-            smtp_server=smtp_server, msg=msg))
+                    email_from=email_from, email_to=email_to, login=login,
+                    smtp_server=smtp_server, msg=msg))
 
         # send email with mockups
         mailer.send_email(msg, email_config)
@@ -373,7 +373,7 @@ class TestSetPassword:
                 '{smtp_server}',
                 '{email_from}',
                 'set_password_secret')""".format(
-            email_from=email_from, smtp_server=smtp_server))
+                    email_from=email_from, smtp_server=smtp_server))
 
         # set password with mockups
         mailer.set_password(email_config)
@@ -409,7 +409,7 @@ class TestSetPassword:
                 '{smtp_server}',
                 '{login}',
                 'set_password_secret')""".format(
-            login=login, smtp_server=smtp_server))
+                    login=login, smtp_server=smtp_server))
 
         # set password with mockups
         mailer.set_password(email_config)

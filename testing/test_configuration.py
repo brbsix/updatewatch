@@ -6,7 +6,7 @@ import argparse
 import os
 import logging
 import random
-import re
+# import re
 import sys
 from textwrap import dedent
 
