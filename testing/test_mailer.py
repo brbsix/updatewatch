@@ -5,7 +5,10 @@
 import random
 from email.mime.text import MIMEText
 from textwrap import dedent
-from unittest import mock
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 # external imports
 import minimock

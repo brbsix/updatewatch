@@ -20,6 +20,15 @@ from updatewatch import __description__, __program__, __version__
 #     with open(filename) as f:
 #         return f.read()
 
+SETUP_REQUIRES = ['pytest-runner']
+INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
+TEST_REQUIRE = ['minimock', 'pytest', 'pytest-datafiles']
+
+# install standalone mock if necessary (Python 3.2 and below)
+try:
+    __import__('unittest.mock')
+except ImportError:
+    TEST_REQUIRE.append('mock')
 
 setup(
     name=__program__,
@@ -30,16 +39,14 @@ setup(
     # long_description=read('README.rst'),
     url='https://github.com/brbsix/updatewatch',
     license='GPLv3',
-    keywords=['monitor', 'notify', 'updates'],
     packages=find_packages(),
-    install_requires=[
-        'appdirs', 'keyring', 'PyYAML'
-    ],
+    setup_requires=SETUP_REQUIRES,
+    install_requires=INSTALL_REQUIRES,
+    tests_require=TEST_REQUIRE,
     entry_points={
         'console_scripts': ['updatewatch=updatewatch.updatewatch:main'],
     },
-    setup_requires=['pytest-runner'],
-    tests_require=['minimock', 'pytest', 'pytest-datafiles'],
+    keywords=['monitor', 'notify', 'updates'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
