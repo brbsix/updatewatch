@@ -114,6 +114,11 @@ HTML = dedent("""\
     <span style="font-size: 14px;">
 
     <p>
+    &nbsp;<b>update A</b><br>
+    &nbsp;crazyapp<br>
+    &nbsp;lazyapp<br>
+    </p>
+    <p>
     &nbsp;<b>update C</b><br>
     &nbsp;someapp<br>
     </p>
@@ -152,24 +157,11 @@ class TestEmailNew:
             }
         }
 
-        msg_wanted = ('Content-Type: text/html; charset="utf-8"\n'
-                      'MIME-Version: 1.0\n'
-                      'Content-Transfer-Encoding: base64\n'
-                      'Subject: updatewatch\n'
-                      'From: example@domain.com\n'
-                      'To: example@domain.com\n\n'
-                      'PHNwYW4gc3R5bGU9ImZvbnQtZmFtaWx5OiBDb3VyaWVyLCBtb25vc3B'
-                      'hY2U7Ij4KPHNwYW4gc3R5\nbGU9ImZvbnQtc2l6ZTogMTRweDsiPgoK'
-                      'PHA+CiZuYnNwOzxiPnVwZGF0ZSBBPC9iPjxicj4KJm5i\nc3A7Y3Jhe'
-                      'nlhcHA8YnI+CiZuYnNwO2xhenlhcHA8YnI+CjwvcD4KPHA+CiZuYnNw'
-                      'OzxiPnVwZGF0\nZSBDPC9iPjxicj4KJm5ic3A7c29tZWFwcDxicj4KP'
-                      'C9wPgo8cD4KJm5ic3A7PGI+dXBkYXRlIEU8\nL2I+PGJyPgombmJzcD'
-                      'tvdGhlcmFwcDxicj4KPC9wPgo8cD4KJm5ic3A7PGI+Tm9kZS5qcyBtb'
-                      '2R1\nbGVzPC9iPjxicj4KJm5ic3A7bnBtPGJyPgo8L3A+Cjwvc3Bhbj'
-                      '4KCjxzcGFuIHN0eWxlPSJmb250\nLXNpemU6IDEycHg7Ij4KPHA+Cjx'
-                      'pPlNlbnQgY291cnRlc3kgdXBkYXRld2F0Y2g8L2k+Cjxicj4K\nPGk+'
-                      'Q29weXJpZ2h0IMKpMjAxNiBTaXggKGJyYnNpeEBnbWFpbC5jb20pPC9'
-                      'pPgo8L3A+Cjwvc3Bh\nbj4KPC9zcGFuPgo=\n')
+        msg = MIMEText(HTML, 'html')
+        msg['Subject'] = __program__
+        msg['From'] = 'example@domain.com'
+        msg['To'] = 'example@domain.com'
+        msg_wanted = msg.as_string()
 
         with mock.patch('updatewatch.mailer.send_email') as mock_function:
             mailer.email_new(RESULTS_NEW, email_config)
@@ -228,7 +220,7 @@ class TestMakeMsg:
             }
         }
 
-        assert mailer.make_msg(RESULTS, msg_config) == \
+        assert mailer.make_msg(RESULTS_NEW, msg_config) == \
             msg.as_string()
 
     def test_make_msg_custom(self):
@@ -250,7 +242,7 @@ class TestMakeMsg:
             }
         }
 
-        assert mailer.make_msg(RESULTS, msg_config) == \
+        assert mailer.make_msg(RESULTS_NEW, msg_config) == \
             msg.as_string()
 
 
@@ -502,4 +494,4 @@ def test_keyring():
 
 
 def test_make_html():
-    assert mailer.make_html(RESULTS) == HTML
+    assert mailer.make_html(RESULTS_NEW) == HTML
