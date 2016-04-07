@@ -3,6 +3,7 @@
 
 # standard imports
 import argparse
+import errno
 import logging
 import os
 
@@ -158,35 +159,32 @@ def populate(path):
 
     LOG.debug('running configuration.populate')
 
-    # add support for Python 3.3 and below
-    try:
-        FileNotFoundError
-    except NameError:
-        # pylint: disable=invalid-name,redefined-builtin
-        FileNotFoundError = IOError
-
     try:
         return yaml_load(path)
-    except FileNotFoundError:
-        LOG.debug('did not find YAML document')
-        skeleton = {
-            'email': {
-                'enabled': False,
-                'from': 'username@gmail.com',
-                'to': 'username@gmail.com',
-                'subject': 'updatewatch',
-                'smtp': {
-                    'host': 'smtp.gmail.com',
-                    'port': 587
+    # Py33 raises FileNotFoundError which subclasses OSError
+    # These are not equivalent unless we check the errno attribute
+    except OSError as e:  # Platform-specific: Python 3.3 and beyond
+        if e.errno == errno.ENOENT:
+            LOG.debug('did not find YAML document')
+            skeleton = {
+                'email': {
+                    'enabled': False,
+                    'from': 'username@gmail.com',
+                    'to': 'username@gmail.com',
+                    'subject': 'updatewatch',
+                    'smtp': {
+                        'host': 'smtp.gmail.com',
+                        'port': 587
+                    }
+                },
+                'notify': {
+                    'enabled': False,
                 }
-            },
-            'notify': {
-                'enabled': False,
             }
-        }
-        yaml_dump(skeleton, path)
-        LOG.debug('created and populated default YAML document')
-        return skeleton
+            yaml_dump(skeleton, path)
+            LOG.debug('created and populated default YAML document')
+            return skeleton
+        raise
 
 
 def yaml_dump(data, path):
