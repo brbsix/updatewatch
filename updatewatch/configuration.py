@@ -161,9 +161,7 @@ def populate(path):
 
     try:
         return yaml_load(path)
-    # Py33 raises FileNotFoundError which subclasses OSError
-    # These are not equivalent unless we check the errno attribute
-    except OSError as e:  # Platform-specific: Python 3.3 and beyond
+    except IOError as e:
         if e.errno == errno.ENOENT:
             LOG.debug('did not find YAML document')
             skeleton = {
