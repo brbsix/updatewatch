@@ -44,8 +44,9 @@ def getstatusoutput(cmd):
     except subprocess.CalledProcessError as exc:
         data = exc.output
         status = exc.returncode
-
-    return status, data.rstrip('\n')
+    if data[-1:] == '\n':
+        data = data[:-1]
+    return status, data
 
 
 @DATA_FILES
