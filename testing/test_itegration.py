@@ -35,11 +35,12 @@ def getstatusoutput(cmd):
     # See: https://github.com/pytest-dev/pytest-runner/issues/13
     env['PYTHONPATH'] = os.pathsep.join(sys.path)
     try:
-        data = subprocess.check_output(cmd,
-                                       env=env,
-                                       shell=True,
-                                       stderr=subprocess.DEVNULL,
-                                       universal_newlines=True)
+        with open(os.devnull, 'w') as devnull:  # Python 3.2
+            data = subprocess.check_output(cmd,
+                                           env=env,
+                                           shell=True,
+                                           stderr=devnull,
+                                           universal_newlines=True)
         status = 0
     except subprocess.CalledProcessError as exc:
         data = exc.output
