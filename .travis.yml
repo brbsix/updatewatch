@@ -9,7 +9,6 @@ python:
   - 'nightly' # currently points to 3.6-dev
 
 install:
-  - python setup.py install
   - pip install keyrings.alt
 
 script: python setup.py test

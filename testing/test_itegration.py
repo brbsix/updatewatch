@@ -3,6 +3,7 @@
 
 # standard imports
 import os
+import sys
 import subprocess
 
 # external imports
@@ -26,6 +27,27 @@ DATA_FILES = pytest.mark.datafiles(
 )
 
 
+def getstatusoutput(cmd):
+    """Return (status, output) of executing cmd in a shell."""
+    env = os.environ.copy()
+    # copy the current sys.path to PYTHONPATH so subprocesses have access
+    # to libs pulled by tests_require
+    # See: https://github.com/pytest-dev/pytest-runner/issues/13
+    env['PYTHONPATH'] = os.pathsep.join(sys.path)
+    try:
+        data = subprocess.check_output(cmd,
+                                       env=env,
+                                       shell=True,
+                                       stderr=subprocess.DEVNULL,
+                                       universal_newlines=True)
+        status = 0
+    except subprocess.CalledProcessError as exc:
+        data = exc.output
+        status = exc.returncode
+
+    return status, data.rstrip('\n')
+
+
 @DATA_FILES
 def test_integration_is_a_tty(datafiles):
 
@@ -36,7 +58,7 @@ def test_integration_is_a_tty(datafiles):
     # fool the program into thinking it has a tty
     command = '''script -eqfc "python3 -m updatewatch.updatewatch --dir '%s' --list" /dev/null''' % directory
 
-    status, stdout = subprocess.getstatusoutput(command)
+    status, stdout = getstatusoutput(command)
 
     assert stdout == stdout_wanted and status is 0
 
