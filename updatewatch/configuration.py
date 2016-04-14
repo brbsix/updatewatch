@@ -161,8 +161,8 @@ def populate(path):
 
     try:
         return yaml_load(path)
-    except IOError as e:
-        if e.errno == errno.ENOENT:
+    except IOError as exc:
+        if exc.errno == errno.ENOENT:
             LOG.debug('did not find YAML document')
             skeleton = {
                 'email': {
