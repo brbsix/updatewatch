@@ -33,7 +33,7 @@ def require_pylint():
 
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
-TESTS_REQUIRE = ['minimock', 'pytest', 'pytest-datafiles']
+TESTS_REQUIRE = ['coverage', 'minimock', 'pytest', 'pytest-datafiles']
 
 # install standalone mock if necessary (Python 3.2 and below)
 try:
