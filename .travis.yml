@@ -11,4 +11,4 @@ python:
 install:
   - pip install keyrings.alt
 
-script: python setup.py test
+script: travis_retry python setup.py test
