@@ -33,17 +33,17 @@ def require_pylint():
 
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
-TEST_REQUIRE = ['minimock', 'pytest', 'pytest-datafiles']
+TESTS_REQUIRE = ['minimock', 'pytest', 'pytest-datafiles']
 
 # install standalone mock if necessary (Python 3.2 and below)
 try:
     __import__('unittest.mock')
 except ImportError:
-    TEST_REQUIRE.append('mock')
+    TESTS_REQUIRE.append('mock')
 
 # install pytest-pylint if pytest is called with --pylint
 if require_pylint():
-    TEST_REQUIRE.append('pytest-pylint')
+    TESTS_REQUIRE.append('pytest-pylint')
 
 setup(
     name=__program__,
@@ -56,7 +56,7 @@ setup(
     packages=find_packages(),
     setup_requires=SETUP_REQUIRES,
     install_requires=INSTALL_REQUIRES,
-    tests_require=TEST_REQUIRE,
+    tests_require=TESTS_REQUIRE,
     entry_points={
         'console_scripts': ['updatewatch=updatewatch.updatewatch:main'],
     },
