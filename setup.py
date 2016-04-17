@@ -16,9 +16,6 @@ from setuptools import find_packages, setup
 from updatewatch import __description__, __program__, __version__
 
 
-# def read(filename):
-#     with open(filename) as f:
-#         return f.read()
 
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
@@ -36,7 +33,6 @@ setup(
     description=__description__,
     author='Brian Beffa',
     author_email='brbsix@gmail.com',
-    # long_description=read('README.rst'),
     url='https://github.com/brbsix/updatewatch',
     license='GPLv3',
     packages=find_packages(),
