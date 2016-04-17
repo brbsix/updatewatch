@@ -16,6 +16,20 @@ from setuptools import find_packages, setup
 from updatewatch import __description__, __program__, __version__
 
 
+def require_pylint():
+    """Determine whether pytest-pylint is a necessary test dependency."""
+    import getopt
+    import os
+    import shlex
+    import sys
+
+    try:
+        addopts = shlex.split(os.environ.get('PYTEST_ADDOPTS', '')) + \
+            [v for _, v in getopt.getopt(sys.argv[2:], '', ['addopts='])[0]]
+    except getopt.GetoptError:
+        return False
+
+    return '--pylint' in addopts
 
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
@@ -26,6 +40,10 @@ try:
     __import__('unittest.mock')
 except ImportError:
     TEST_REQUIRE.append('mock')
+
+# install pytest-pylint if pytest is called with --pylint
+if require_pylint():
+    TEST_REQUIRE.append('pytest-pylint')
 
 setup(
     name=__program__,

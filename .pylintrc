@@ -1,0 +1,14 @@
+[MASTER]
+
+# Add files or directories to the blacklist. They should be base names, not
+# paths.
+ignore=testing
+
+# Use multiple processes to speed up Pylint.
+jobs=2
+
+
+[REPORTS]
+
+# Tells whether to display a full report or only the messages
+reports=no
