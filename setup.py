@@ -33,7 +33,7 @@ def require_pylint():
 
 SETUP_REQUIRES = ['pytest-runner']
 INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
-TESTS_REQUIRE = ['coverage', 'minimock', 'pytest', 'pytest-datafiles']
+TESTS_REQUIRE = ['minimock', 'pytest', 'pytest-cov', 'pytest-datafiles']
 
 # install standalone mock if necessary (Python 3.2 and below)
 try:
@@ -57,6 +57,7 @@ setup(
     setup_requires=SETUP_REQUIRES,
     install_requires=INSTALL_REQUIRES,
     tests_require=TESTS_REQUIRE,
+    extras_require={'testing': TESTS_REQUIRE},
     entry_points={
         'console_scripts': ['updatewatch=updatewatch.updatewatch:main'],
     },
