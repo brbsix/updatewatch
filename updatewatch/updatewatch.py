@@ -12,7 +12,6 @@ import re
 import shelve
 import subprocess
 import sys
-from distutils.version import StrictVersion
 from tempfile import gettempdir
 from textwrap import dedent
 
@@ -351,10 +350,7 @@ def modifier_node_js(stdout):
             LOG.debug('Node.js current: %s', current)
             wanted = match['wanted']
             LOG.debug('Node.js wanted: %s', wanted)
-            # check whether the package is actually outdated
-            if StrictVersion(current) < StrictVersion(wanted):
-                LOG.debug("Node.js package '%s' is wanted", package)
-                modules.append(module_line)
+            modules.append(module_line)
 
     return header, modules
 

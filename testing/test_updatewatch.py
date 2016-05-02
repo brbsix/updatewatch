@@ -475,24 +475,6 @@ class TestModifierNodeJs:
                           'atest\x1b[24m  \x1b[4mLocation\x1b[24m')
         assert stdout == []
 
-    def test_modifer_node_js_header_only_not_outdated(self):
-        original_stdout = [
-            '\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b'
-            '[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent'
-            '\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mL'
-            'atest\x1b[24m  \x1b[4mLocation\x1b[24m',
-            '\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.7.5'
-            '\x1b[39m   \x1b[35m3.9.0\x1b[39m  \x1b[90m\x1b[39m'
-        ]
-
-        header, stdout = updatewatch.modifier_node_js(original_stdout)
-
-        assert header == ('\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b'
-                          '[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent'
-                          '\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mL'
-                          'atest\x1b[24m  \x1b[4mLocation\x1b[24m')
-        assert stdout == []
-
     def test_modifer_node_js_with_one_outdated(self):
         original_stdout = [
             '\x1b[?25h\x1b[0G\x1b[K\x1b[?25h\x1b[0G\x1b'
@@ -518,8 +500,6 @@ class TestModifierNodeJs:
             '[K\x1b[4mPackage\x1b[24m  \x1b[4mCurrent'
             '\x1b[24m  \x1b[4mWanted\x1b[24m  \x1b[4mL'
             'atest\x1b[24m  \x1b[4mLocation\x1b[24m',
-            '\x1b[33mjshint\x1b[39m        2.9.1   \x1b[32m2.9.1'
-            '\x1b[39m   \x1b[35m2.9.1\x1b[39m  \x1b[90m\x1b[39m',
             '\x1b[33mnpm\x1b[39m        3.7.5   \x1b[32m3.8.0'
             '\x1b[39m   \x1b[35m3.8.0\x1b[39m  \x1b[90m\x1b[39m',
             '\x1b[33myo\x1b[39m        1.6.0   \x1b[32m1.7.0'
