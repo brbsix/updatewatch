@@ -21,7 +21,7 @@ class Terminal:
 
     @staticmethod
     def clean(msg):
-        """Stip terminal codes from text."""
+        """Strip terminal codes from text."""
         return re.sub(r'\x1b[^m]*m', '', msg)
 
     @staticmethod
