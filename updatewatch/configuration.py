@@ -186,9 +186,7 @@ def populate(path):
                 'port': 587
             }
         },
-        'notify': {
-            'enabled': False,
-        }
+        'notify': False
     }
 
     LOG.debug('running configuration.populate')

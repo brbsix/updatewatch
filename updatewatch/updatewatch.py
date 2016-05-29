@@ -51,10 +51,7 @@ def action_list(options):
     results = check(updates)
 
     # determine whether to notify upon results
-    try:
-        notify = config['notify']['enabled']
-    except KeyError:
-        notify = False
+    notify = config.get('notify', False)
 
     reporters.show_all(results, notify)
 

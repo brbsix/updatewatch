@@ -306,7 +306,7 @@ class TestPopulate:
               smtp: {host: smtp.gmail.com, port: 587}
               subject: updatewatch
               to: username@gmail.com
-            notify: {enabled: false}
+            notify: false
             """)
 
         data_wanted = {
@@ -320,9 +320,7 @@ class TestPopulate:
                     'port': 587
                 }
             },
-            'notify': {
-                'enabled': False,
-            }
+            'notify': False
         }
 
         path = str(tmpdir / 'file.yaml')
@@ -342,7 +340,7 @@ class TestPopulate:
               smtp: {host: smtp.gmail.com, port: 587}
               subject: updatewatch
               to: username@gmail.com
-            notify: {enabled: true}
+            notify: true
             """)
 
         data_wanted = {
@@ -356,9 +354,7 @@ class TestPopulate:
                     'port': 587
                 }
             },
-            'notify': {
-                'enabled': True,
-            }
+            'notify': True
         }
 
         path = str(tmpdir / 'file.yaml')
@@ -391,9 +387,7 @@ class TestPopulate:
                     'port': 587
                 }
             },
-            'notify': {
-                'enabled': False,
-            }
+            'notify': False
         }
 
         path = str(tmpdir / 'file.yaml')
@@ -417,9 +411,7 @@ class TestPopulate:
                     'port': 587
                 }
             },
-            'notify': {
-                'enabled': False,
-            }
+            'notify': False
         }
 
         document_wanted = dedent("""\
@@ -429,7 +421,7 @@ class TestPopulate:
               smtp: {host: smtp.gmail.com, port: 587}
               subject: updatewatch
               to: username@gmail.com
-            notify: {enabled: false}
+            notify: false
             """)
 
         while True:
