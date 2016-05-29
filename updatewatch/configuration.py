@@ -3,6 +3,7 @@
 
 # standard imports
 import argparse
+import copy
 import errno
 import logging
 import os
@@ -49,6 +50,23 @@ def initialize_logging(logfile=None, loglevel=logging.WARNING):
             filehandler = logging.FileHandler(logfile)
             filehandler.setFormatter(fileformatter)
             scriptlogger.addHandler(filehandler)
+
+
+def merge(source, destination):
+    """
+    Merge dictionaries.
+    See: http://stackoverflow.com/a/20666342
+    """
+
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # get node or create one
+            node = destination.setdefault(key, {})
+            merge(value, node)
+        else:
+            destination[key] = value
+
+    return destination
 
 
 def parse_args(args):
@@ -157,28 +175,35 @@ def populate(path):
     if necessary.
     """
 
+    skeleton = {
+        'email': {
+            'enabled': False,
+            'from': 'username@gmail.com',
+            'to': 'username@gmail.com',
+            'subject': 'updatewatch',
+            'smtp': {
+                'host': 'smtp.gmail.com',
+                'port': 587
+            }
+        },
+        'notify': {
+            'enabled': False,
+        }
+    }
+
     LOG.debug('running configuration.populate')
 
     try:
-        return yaml_load(path)
+        original = yaml_load(path)
+        merged = merge(original, copy.deepcopy(skeleton))
+        if original == merged:
+            return original
+        else:
+            yaml_dump(merged, path)
+            LOG.debug('merged existing YAML document')
+            return merged
     except IOError as exc:
         if exc.errno == errno.ENOENT:
-            LOG.debug('did not find YAML document')
-            skeleton = {
-                'email': {
-                    'enabled': False,
-                    'from': 'username@gmail.com',
-                    'to': 'username@gmail.com',
-                    'subject': 'updatewatch',
-                    'smtp': {
-                        'host': 'smtp.gmail.com',
-                        'port': 587
-                    }
-                },
-                'notify': {
-                    'enabled': False,
-                }
-            }
             yaml_dump(skeleton, path)
             LOG.debug('created and populated default YAML document')
             return skeleton

@@ -40,6 +40,64 @@ class TestDirectory:
         assert str(exception.value) == "invalid directory path: '%s'" % badpath
 
 
+class TestMerge:
+    def test_merge_differing(self):
+        source_dict = {
+            'first': {
+                'all_rows': {
+                    'fail': 'cat',
+                    'number': '5'
+                }
+            }
+        }
+        destination_dict = {
+            'first': {
+                'all_rows': {
+                    'pass': 'dog',
+                    'number': '1'
+                }
+            }
+        }
+        assert configuration.merge(source_dict, destination_dict) == {
+            'first': {
+                'all_rows': {
+                    'pass': 'dog',
+                    'fail': 'cat',
+                    'number': '5'
+                }
+            }
+        }
+
+    def test_merge_missing(self):
+        source_dict = {
+            'first': {
+                'all_rows': {
+                    'fail': 'cat',
+                    'number': '5'
+                }
+            }
+        }
+        destination_dict = {
+            'first': {
+                'all_rows': {
+                    'pass': 'dog',
+                    'number': '1'
+                }
+            },
+            'hotstuff': 'coolsauce'
+        }
+        assert configuration.merge(source_dict, destination_dict) == {
+            'first': {
+                'all_rows': {
+                    'pass': 'dog',
+                    'fail': 'cat',
+                    'number': '5'
+                }
+            },
+            'hotstuff': 'coolsauce'
+        }
+
+
 class TestParseArgs:
     def test_parse_args(self):
         directory = appdirs.user_config_dir(__program__)
@@ -249,6 +307,77 @@ class TestPopulate:
               subject: updatewatch
               to: username@gmail.com
             notify: {enabled: false}
+            """)
+
+        data_wanted = {
+            'email': {
+                'enabled': False,
+                'from': 'username@gmail.com',
+                'to': 'username@gmail.com',
+                'subject': 'updatewatch',
+                'smtp': {
+                    'host': 'smtp.gmail.com',
+                    'port': 587
+                }
+            },
+            'notify': {
+                'enabled': False,
+            }
+        }
+
+        path = str(tmpdir / 'file.yaml')
+
+        with open(path, 'w') as file:
+            file.write(document)
+
+        data_returned = configuration.populate(path)
+
+        assert data_returned == data_wanted
+
+    def test_populate_exists_merge_differing(self, tmpdir):
+        document = dedent("""\
+            email:
+              enabled: false
+              from: username@gmail.com
+              smtp: {host: smtp.gmail.com, port: 587}
+              subject: updatewatch
+              to: username@gmail.com
+            notify: {enabled: true}
+            """)
+
+        data_wanted = {
+            'email': {
+                'enabled': False,
+                'from': 'username@gmail.com',
+                'to': 'username@gmail.com',
+                'subject': 'updatewatch',
+                'smtp': {
+                    'host': 'smtp.gmail.com',
+                    'port': 587
+                }
+            },
+            'notify': {
+                'enabled': True,
+            }
+        }
+
+        path = str(tmpdir / 'file.yaml')
+
+        with open(path, 'w') as file:
+            file.write(document)
+
+        data_returned = configuration.populate(path)
+
+        assert data_returned == data_wanted
+
+    def test_populate_exists_merge_missing(self, tmpdir):
+        document = dedent("""\
+            email:
+              enabled: false
+              from: username@gmail.com
+              smtp: {host: smtp.gmail.com, port: 587}
+              subject: updatewatch
+              to: username@gmail.com
             """)
 
         data_wanted = {
