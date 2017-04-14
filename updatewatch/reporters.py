@@ -3,6 +3,7 @@
 
 # standard imports
 import logging
+import os
 import re
 import subprocess
 import sys
@@ -17,7 +18,12 @@ class Terminal:
     LIGHTGREEN = '\x1b[92m'
     LIGHTRED = '\x1b[91m'
     RESET_ALL = '\x1b[0m'
-    isatty = sys.stdout.isatty()
+
+    # permit override via environment variable
+    try:
+        isatty = bool(int(os.environ['ISATTY']))
+    except KeyError:
+        isatty = sys.stdout.isatty()
 
     @staticmethod
     def clean(msg):
