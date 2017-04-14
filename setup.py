@@ -12,6 +12,7 @@ To run tests directly with verbose output:
 python3 -m pytest -vv
 """
 
+import sys
 from setuptools import find_packages, setup
 from updatewatch import __description__, __program__, __version__
 
@@ -21,7 +22,6 @@ def require_pylint():
     import getopt
     import os
     import shlex
-    import sys
 
     try:
         addopts = shlex.split(os.environ.get('PYTEST_ADDOPTS', '')) + \
@@ -31,7 +31,8 @@ def require_pylint():
 
     return '--pylint' in addopts
 
-SETUP_REQUIRES = ['pytest-runner']
+SETUP_REQUIRES = ['pytest-runner'] if \
+    {'ptr', 'pytest', 'test'}.intersection(sys.argv) else []
 INSTALL_REQUIRES = ['appdirs', 'keyring', 'PyYAML']
 TESTS_REQUIRE = ['minimock', 'pytest', 'pytest-cov', 'pytest-datafiles']
 
