@@ -159,8 +159,7 @@ def get_action(options):
         return action_list_from_cache
     elif options.run_from_cache:
         return action_run_from_cache
-    else:
-        return action_default
+    return action_default
 
 
 def get_cache(path, updates):
