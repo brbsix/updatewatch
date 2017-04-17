@@ -95,6 +95,11 @@ def parse_args(args):
         help='r|override default config directory\n'
              '(typically %s)' % default_directory,
         type=directory)
+    parser.add_argument(
+        '-s', '--single',
+        action='store_false',
+        dest='multiprocess',
+        help='use a single process for checking updates')
 
     cgroup = parser.add_argument_group('commands')
     mgroup = cgroup.add_mutually_exclusive_group()

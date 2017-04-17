@@ -75,7 +75,7 @@ class TestCheck:
              ]}
         ]
 
-        data_returned = updatewatch.check(updates)
+        data_returned = updatewatch.check(updates, True)
 
         assert isinstance(data_returned, types.GeneratorType)
 

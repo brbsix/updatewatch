@@ -31,7 +31,7 @@ def action_default(options):
     LOG.debug('updates: %s', updates)
 
     # check for updates
-    results = check(updates)
+    results = check(updates, options.multiprocess)
 
     # compare results with cache and store changes
     data = get_data(results, options.database, updates)
@@ -48,7 +48,7 @@ def action_list(options):
     LOG.debug('updates: %s', updates)
 
     # check for updates
-    results = check(updates)
+    results = check(updates, options.multiprocess)
 
     # determine whether to notify upon results
     notify = config.get('notify', False)
@@ -81,9 +81,12 @@ def action_set_password(options):
     mailer.set_password(config['email'])
 
 
-def check(updates):
+def check(updates, multiprocess):
     """Check for updates and return the results as a generator of processes."""
     processes = [execute(**u) for u in updates]
+
+    if not multiprocess:
+        return (next(p) or next(p) for p in processes)
 
     # start the processes
     for process in processes:

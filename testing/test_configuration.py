@@ -110,6 +110,7 @@ class TestParseArgs:
             list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            multiprocess=True,
             run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -125,6 +126,7 @@ class TestParseArgs:
             list_from_cache=False,
             logfile=None,
             loglevel=logging.DEBUG,
+            multiprocess=True,
             run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -140,6 +142,7 @@ class TestParseArgs:
             list_from_cache=False,
             logfile=os.path.join(directory, __program__ + '.log'),
             loglevel=logging.WARNING,
+            multiprocess=True,
             run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -156,6 +159,7 @@ class TestParseArgs:
                 list_from_cache=False,
                 logfile='somepath',
                 loglevel=logging.WARNING,
+                multiprocess=True,
                 run_from_cache=False,
                 set_password=False,
                 updates=os.path.join(directory, 'updates.yaml'))
@@ -171,6 +175,7 @@ class TestParseArgs:
             list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            multiprocess=True,
             run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -207,6 +212,7 @@ class TestParseArgs:
             list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            multiprocess=True,
             run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -225,6 +231,7 @@ class TestParseArgs:
             list_from_cache=True,
             logfile=None,
             loglevel=logging.WARNING,
+            multiprocess=True,
             run_from_cache=False,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -242,6 +249,7 @@ class TestParseArgs:
             list_from_cache=False,
             logfile=None,
             loglevel=logging.WARNING,
+            multiprocess=True,
             run_from_cache=True,
             set_password=False,
             updates=os.path.join(directory, 'updates.yaml'))
@@ -260,6 +268,7 @@ class TestParseArgs:
                 list_from_cache=False,
                 logfile=None,
                 loglevel=logging.WARNING,
+                multiprocess=True,
                 run_from_cache=False,
                 set_password=True,
                 updates=os.path.join(directory, 'updates.yaml'))
