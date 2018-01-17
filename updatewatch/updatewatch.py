@@ -122,8 +122,9 @@ def difference(current, previous):
 
 def difference_list(current, previous):
     """Compare list of new information with list of old information."""
-    return [difference(c, p) for c, p in
-            itertools.zip_longest(current, previous)]
+    return [
+        difference(c, p) for c, p in itertools.zip_longest(current, previous)
+    ]
 
 
 def execute(description, command, timeout='3m'):
@@ -137,14 +138,15 @@ def execute(description, command, timeout='3m'):
 
     LOG.debug('cmd: %s', repr(cmd))
 
-    with subprocess.Popen(cmd,
-                          cwd=gettempdir(),
-                          executable='bash',
-                          preexec_fn=lambda: os.nice(19),
-                          shell=True,
-                          stderr=subprocess.PIPE,
-                          stdout=subprocess.PIPE,
-                          universal_newlines=True) as process:
+    with subprocess.Popen(
+            cmd,
+            cwd=gettempdir(),
+            executable='bash',
+            preexec_fn=lambda: os.nice(19),
+            shell=True,
+            stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True) as process:
         yield None
 
         stdout, stderr = process.communicate()
@@ -339,8 +341,8 @@ def modifier_node_js(stdout):
             try:
                 match = re.match(
                     r'(?P<package>\S+)\s+(?P<current>\S+)\s+(?P<wanted>\S+)\s+'
-                    r'(?P<latest>\S+)(\s+(?P<location>\S+))?', clean_line
-                ).groupdict()
+                    r'(?P<latest>\S+)(\s+(?P<location>\S+))?',
+                    clean_line).groupdict()
             except AttributeError:
                 continue
             package = match['package']
