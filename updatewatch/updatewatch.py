@@ -100,8 +100,9 @@ def difference(current, previous):
     if previous is None:
         previous = make_default()
 
-    LOG.debug('processing current: %s', current['description'])
-    LOG.debug('processing previous: %s', previous['description'])
+    LOG.debug('comparing current/previous information')
+    LOG.debug('current:\n%s\n%s', current['description'], current['stdout'])
+    LOG.debug('previous:\n%s\n%s', previous['description'], previous['stdout'])
 
     # find the difference between two sets
     new = set(current['stdout']) - set(previous['stdout'])
