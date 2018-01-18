@@ -12,6 +12,7 @@ import re
 import shelve
 import subprocess
 import sys
+from distutils.version import StrictVersion
 from tempfile import gettempdir
 from textwrap import dedent
 
@@ -113,7 +114,10 @@ def difference(current, previous):
     # preserve stdout of previous result if command has no output
     # and returns a nonzero exit status
     # Note: this won't be displayed by any reporters because new is empty
-    if (current['stderr'] or current['status'] != 0) and \
+    # Note: `npm outdated` uses exit status in a very unusual manner, so ignore it
+    if (current['stderr'] or
+        (current['description'] != 'Node.js modules' and
+         current['status'] != 0)) and \
             not current['stdout'] and previous['stdout']:
         LOG.debug('preserving previous stdout: %s', previous['stdout'])
         current['stdout'] = previous['stdout']
@@ -352,7 +356,12 @@ def modifier_node_js(stdout):
             LOG.debug('Node.js current: %s', current)
             wanted = match['wanted']
             LOG.debug('Node.js wanted: %s', wanted)
-            modules.append(module_line)
+            latest = match['latest']
+            LOG.debug('Node.js latest: %s', latest)
+            # check whether the package is actually outdated
+            if StrictVersion(latest) > StrictVersion(current):
+                LOG.debug("Node.js package '%s' is actually outdated", package)
+                modules.append(module_line)
 
     return header, modules
 
