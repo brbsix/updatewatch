@@ -110,8 +110,8 @@ def difference(current, previous):
     LOG.debug('new is %s', new)
     current['new'] = new
 
-    # preserve stdout of previous result if update check experiences
-    # and error and has no output
+    # preserve stdout of previous result if command has no output
+    # and returns a nonzero exit status
     # Note: this won't be displayed by any reporters because new is empty
     if (current['stderr'] or current['status'] != 0) and \
             not current['stdout'] and previous['stdout']:
