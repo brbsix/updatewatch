@@ -14,7 +14,6 @@ import subprocess
 import sys
 from distutils.version import StrictVersion
 from tempfile import gettempdir
-from textwrap import dedent
 
 # external imports
 import yaml
@@ -135,11 +134,7 @@ def difference_list(current, previous):
 def execute(description, command, timeout='3m'):
     """Check for updates."""
 
-    # be sure to dedent before inserting command
-    cmd = dedent("""\
-        timeout {} bash <<EOF
-        %s
-        EOF""".format(timeout)) % command
+    cmd = 'timeout {} bash <<EOF\n{}\nEOF'.format(timeout, command)
 
     LOG.debug('cmd: %r', cmd)
 
