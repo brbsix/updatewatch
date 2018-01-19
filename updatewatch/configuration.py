@@ -201,10 +201,9 @@ def populate(path):
         merged = merge(original, copy.deepcopy(skeleton))
         if original == merged:
             return original
-        else:
-            yaml_dump(merged, path)
-            LOG.debug('merged existing YAML document')
-            return merged
+        yaml_dump(merged, path)
+        LOG.debug('merged existing YAML document')
+        return merged
     except IOError as exc:
         if exc.errno == errno.ENOENT:
             yaml_dump(skeleton, path)
