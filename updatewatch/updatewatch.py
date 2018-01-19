@@ -141,7 +141,7 @@ def execute(description, command, timeout='3m'):
         %s
         EOF""".format(timeout)) % command
 
-    LOG.debug('cmd: %s', repr(cmd))
+    LOG.debug('cmd: %r', cmd)
 
     with subprocess.Popen(
             cmd,
@@ -290,9 +290,9 @@ def make_default():
 def make_result(description, stdout, stderr, status):
     """Return result of update check."""
 
-    LOG.debug('description: %s', repr(description))
-    LOG.debug('stdout: %s', repr(stdout))
-    LOG.debug('stderr: %s', repr(stderr))
+    LOG.debug('description: %r', description)
+    LOG.debug('stdout: %r', stdout)
+    LOG.debug('stderr: %r', stderr)
     LOG.debug('status: %d', status)
 
     header = None
@@ -334,13 +334,13 @@ def modifier_node_js(stdout):
 
     if len(stdout) >= 1:
         header = stdout[0]
-        LOG.debug('Node.js header: %s', repr(header))
+        LOG.debug('Node.js header: %r', header)
 
     if len(stdout) >= 2:
         all_module_lines = stdout[1:]
         LOG.debug('Node.js all_module_lines: %s', all_module_lines)
         for module_line in all_module_lines:
-            LOG.debug('Node.js module_line: %s', repr(module_line))
+            LOG.debug('Node.js module_line: %r', module_line)
             clean_line = reporters.Terminal.clean(module_line)
             LOG.debug('clean_line: %s', clean_line)
             try:
