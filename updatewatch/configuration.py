@@ -215,13 +215,13 @@ def populate(path):
 def yaml_dump(data, path):
     """Write YAML document to `path`."""
     with open(path, 'w') as file:
-        yaml.dump(data, file)
+        yaml.safe_dump(data, file)
 
 
 def yaml_load(path):
     """Return YAML document from `path`."""
     with open(path) as file:
-        return yaml.load(file)
+        return yaml.safe_load(file)
 
 
 LOG = logging.getLogger(__program__)

@@ -218,7 +218,7 @@ def get_hash(item):
 def get_updates(path):
     """Return list of updates from YAML document."""
     with open(path) as file:
-        return list(yaml.load_all(file))
+        return list(yaml.safe_load_all(file))
 
 
 def hashablize(obj):
